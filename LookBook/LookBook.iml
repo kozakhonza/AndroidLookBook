@@ -10,6 +10,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: ComGoogleAndroidGmsPlayServices4030.aar" level="project" />
+    <orderEntry type="library" name="Gradle: ComAndroidSupportAppcompatV71901.aar" level="project" />
+    <orderEntry type="library" name="Gradle: support-v4-19.0.1" level="project" />
   </component>
 </module>
 

@@ -3,44 +3,45 @@ package klara.lookbook.fragments;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.graphics.Bitmap;
-import android.net.Uri;
+import android.location.Location;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
+
+import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.R;
+import klara.lookbook.utils.UriUtil;
 
+public class AddItemFragment extends BaseFragment implements GooglePlayServicesClient.ConnectionCallbacks,
+        GooglePlayServicesClient.OnConnectionFailedListener {
 
-/**
- * A simple {@link android.support.v4.app.Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AddItemFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AddItemFragment#newInstance} factory method to
- * create an instance of this fragment.
- *
- */
-public class AddItemFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
+    private LocationClient mLocationClient;
 
     private ImageView imageView;
+
+    private int reconnectCounter = 0;
 
     /**
      * Use this factory method to create a new instance of
@@ -58,17 +59,11 @@ public class AddItemFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    public AddItemFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        mLocationClient = new LocationClient(getActivity(), this, this);
     }
 
     @Override
@@ -85,6 +80,14 @@ public class AddItemFragment extends Fragment {
         return mainView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(googleServicesConnected()) {
+            mLocationClient.connect();
+        }
+    }
+
     public void takeThePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
@@ -92,49 +95,26 @@ public class AddItemFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    private boolean servicesConnected() {
-        // Check that Google Play services is available
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        // If Google Play services is available
+    private boolean googleServicesConnected() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
         if (ConnectionResult.SUCCESS == resultCode) {
-            // In debug mode, log the status
-            Log.d("Location Updates",
-                    "Google Play services is available.");
-            // Continue
             return true;
-            // Google Play services was not available for some reason
         } else {
-            // Get the error code
-            int errorCode = connectionResult.getErrorCode();
-            // Get the error dialog from Google Play services
             Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                    errorCode,
-                    this,
+                    resultCode, // todo tady tim si nejsem jisty
+                    getActivity(),
                     CONNECTION_FAILURE_RESOLUTION_REQUEST);
-
-            // If Google Play services can provide an error dialog
             if (errorDialog != null) {
-                // Create a new DialogFragment for the error dialog
                 ErrorDialogFragment errorFragment =
                         new ErrorDialogFragment();
-                // Set the dialog in the DialogFragment
                 errorFragment.setDialog(errorDialog);
-                // Show the error dialog in the DialogFragment
-                errorFragment.show(getSupportFragmentManager(),
+                errorFragment.show(getFragmentManager(),
                         "Location Updates");
+            }else {
+                // todo ukazat dialog ze google play service neni dostupna
             }
         }
+        return false;
     }
 
 
@@ -154,44 +134,87 @@ public class AddItemFragment extends Fragment {
                         break;
                 }
         }
-
     }
-
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onStop() {
+        // Disconnecting the client invalidates it.
+        mLocationClient.disconnect();
+        super.onStop();
     }
 
-    // Define a DialogFragment that displays the error dialog
+    @Override
+    public void onConnected(Bundle bundle) {
+        Location location = mLocationClient.getLastLocation();
+        if(location != null) {
+            ArrayList<NameValuePair> values = new ArrayList<NameValuePair>();
+            values.add(new BasicNameValuePair(UriUtil.PARAM_LAT, String.valueOf(location.getLatitude())));
+            values.add(new BasicNameValuePair(UriUtil.PARAM_LNG, String.valueOf(location.getLongitude())));
+
+            GetNearestShopTask task = new GetNearestShopTask();
+            task.init(this, UriUtil.URL_GET_NEAREST_SHOP,values, true);
+            task.execute();
+        }else if(reconnectCounter < 3){
+            reconnectLocation();
+        }else {
+            //todo - ukazat hlasku ze se nepovedlo zjiskat soucasnou polohu ...
+        }
+    }
+
+    @Override
+    public void onDisconnected() {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try {
+                connectionResult.startResolutionForResult(
+                        getActivity(),
+                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
+            } catch (IntentSender.SendIntentException e) {
+                e.printStackTrace();
+            }
+        } else {
+//            showErrorDialog(connectionResult.getErrorCode()); todo
+        }
+
+    }
+
+    private void reconnectLocation() {
+        mLocationClient.disconnect();
+        mLocationClient = null;
+
+        mLocationClient = new LocationClient(getActivity(), this, this);
+        mLocationClient.connect();
+        reconnectCounter++;
+    }
+
     public static class ErrorDialogFragment extends DialogFragment {
-        // Global field to contain the error dialog
         private Dialog mDialog;
-        // Default constructor. Sets the dialog field to null
         public ErrorDialogFragment() {
             super();
             mDialog = null;
         }
-        // Set the dialog to display
         public void setDialog(Dialog dialog) {
             mDialog = dialog;
         }
-        // Return a Dialog to the DialogFragment.
+
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             return mDialog;
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     */
-    public interface OnFragmentInteractionListener {
-        public void onFragmentInteraction(Uri uri);
-    }
+    private class GetNearestShopTask extends BaseAsyncTask {
 
+        @Override
+        public void onTryAgainOk() {
+        }
+
+        @Override
+        public void onTryAgainCancel() {
+        }
+    }
 }

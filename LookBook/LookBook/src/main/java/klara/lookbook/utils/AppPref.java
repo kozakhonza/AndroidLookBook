@@ -8,6 +8,7 @@ public class AppPref {
 
     public static final String KEY_EMAIL = "key_email";
     public static final String KEY_PASSWORD = "key_pass";
+    public static final String KEY_USER_ID = "user_id";
 
     public static void put(Context context, String key, String value) {
         SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, 0);

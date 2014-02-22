@@ -1,8 +1,8 @@
-package klara.lookbook.activities;
+package klara.lookbook.fragments;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -11,8 +11,10 @@ import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.IAsyncTaskHandler;
 import klara.lookbook.dialogs.BaseDialog;
 
-public abstract class BaseActivity extends ActionBarActivity implements BaseDialog.IDialogHandler,
-        IAsyncTaskHandler {
+public abstract class BaseFragment extends Fragment implements BaseDialog.IDialogHandler,
+        IAsyncTaskHandler{
+
+    public String TAG = "klara.lookbook.fragments.BaseFragment";
 
     @Override
     public void onBtnClick(int dialogId, BaseDialog dialog, int which) {
@@ -46,16 +48,16 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseDial
 
     @Override
     public FragmentManager myGetFragmentManager() {
-        return getSupportFragmentManager();
+        return getFragmentManager();
     }
 
     @Override
     public String myGetTag() {
-        return null;
+        return TAG;
     }
 
     @Override
     public Context myGetContext() {
-        return this;
+        return this.getActivity();
     }
 }

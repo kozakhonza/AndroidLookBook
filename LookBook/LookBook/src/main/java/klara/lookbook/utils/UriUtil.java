@@ -6,7 +6,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -25,15 +24,22 @@ import klara.lookbook.exceptions.DownloadException;
 import klara.lookbook.exceptions.UnauthorizedException;
 
 public class UriUtil {
-    public static final String URL_SERVER = "http://192.168.1.104/klarka/php";
-    public static final String URL_LOGIN = "/users/loginMb";
+//    public static final String URL_SERVER = "http://192.168.1.104/klarka/php";
+    public static final String URL_SERVER = "http://klarka-itnerds.rhcloud.com";
 
+    public static final String URL_LOGIN = "/users/loginMb";
+    public static final String URL_GET_NEAREST_SHOP = "/shops/nearestShopsMb";
+
+    public static final String PARAM_IS_MOBILE_REQUEST = "an_is_mobile";
     public static final String PARAM_EMAIL = "username";
     public static final String PARAM_PASSWORD = "password";
+    public static final String PARAM_LAT = "lat";
+    public static final String PARAM_LNG = "lng";
 
     public static final String VALUE_OK = "1";
     public static final String VALUE_FAIL = "0";
 
+    private static DefaultHttpClient client;
 
     private Context context;
 
@@ -53,7 +59,12 @@ public class UriUtil {
         JSONObject jsonObj = _post(URL_LOGIN, params);
         if(jsonObj != null) {
             try {
-                return jsonObj.getString("succes").equals(VALUE_OK);
+                if(jsonObj.getString("succes").equals(VALUE_OK)) {
+                    AppPref.put(context, AppPref.KEY_USER_ID, jsonObj.getInt("userId"));
+                    return true;
+                }else {
+                    return false;
+                }
             } catch (JSONException e) {
                 throw new DownloadException();
             }
@@ -93,7 +104,13 @@ public class UriUtil {
     }
 
     private JSONObject _get(String url, BasicHttpParams params) throws DownloadException, UnauthorizedException {
-        HttpClient client = new DefaultHttpClient();
+        // parametr, oznacujici danny request jako pozadavek odeslany s mobilni aplikace
+        params.setParameter(PARAM_IS_MOBILE_REQUEST, "1");
+
+        if(client == null) {
+            client = new DefaultHttpClient();
+        }
+
         HttpGet get = new HttpGet(URL_SERVER+url);
         HttpResponse response;
         JSONObject json;
@@ -105,7 +122,11 @@ public class UriUtil {
             }
             HttpEntity entity = response.getEntity();
             String stringResponse = EntityUtils.toString(entity);
-            json = new JSONObject(stringResponse);
+            if(!stringResponse.equals("[]")){
+                json = new JSONObject(stringResponse);
+            }else {
+                json = null;
+            }
         } catch (UnsupportedEncodingException e) {
             throw new DownloadException();
         } catch (IOException e) {
@@ -117,7 +138,12 @@ public class UriUtil {
     }
 
     private JSONObject _post(String url,ArrayList<NameValuePair> params) throws DownloadException, UnauthorizedException {
-        HttpClient client = new DefaultHttpClient();
+        // parametr, oznacujici danny request jako pozadavek odeslany s mobilni aplikace
+        params.add(new BasicNameValuePair(PARAM_IS_MOBILE_REQUEST, "1"));
+        if(client == null) {
+            client = new DefaultHttpClient();
+        }
+
         HttpPost post = new HttpPost(URL_SERVER+url);
         HttpResponse response;
         JSONObject json;
@@ -130,7 +156,11 @@ public class UriUtil {
             }
             HttpEntity entity = response.getEntity();
             String stringResponse = EntityUtils.toString(entity);
-            json = new JSONObject(stringResponse);
+            if(!stringResponse.equals("[]")){
+                json = new JSONObject(stringResponse);
+            }else {
+                json = null;
+            }
 
         } catch (UnsupportedEncodingException e) {
             throw new DownloadException();
