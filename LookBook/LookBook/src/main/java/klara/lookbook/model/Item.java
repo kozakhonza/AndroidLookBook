@@ -41,7 +41,7 @@ public class Item extends BaseDbObject {
     private int price;
     private int currency;
     private String description;
-    private String image;
+    private String imageUri;
 
     @Override
     public String getCreateTableString() {
@@ -62,7 +62,7 @@ public class Item extends BaseDbObject {
         values.put(ItemColumns.COLUMN_PRICE, price);
         values.put(ItemColumns.COLUMN_CURRENCY, currency);
         values.put(ItemColumns.COLUMN_DESCRIPTION, description);
-        values.put(ItemColumns.COLUMN_IMAGE, image);
+        values.put(ItemColumns.COLUMN_IMAGE, imageUri);
         return values;
     }
 
@@ -73,7 +73,61 @@ public class Item extends BaseDbObject {
 
     @Override
     protected void initFromCursor(Cursor cursor) {
+        id = cursor.getInt(0);
+        title = cursor.getString(1);
+        shopId = cursor.getInt(2);
+        price = cursor.getInt(3);
+        currency = cursor.getInt(4);
+        description = cursor.getString(5);
+        imageUri = cursor.getString(6);
+    }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public int getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(int shopId) {
+        this.shopId = shopId;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(int currency) {
+        this.currency = currency;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getImageUri() {
+        return imageUri;
+    }
+
+    public void setImageUri(String image) {
+        this.imageUri = image;
     }
 }
 

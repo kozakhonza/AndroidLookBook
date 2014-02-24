@@ -29,7 +29,11 @@ public abstract class BaseActivity extends ActionBarActivity implements BaseDial
             Object[] parameters = {this};
             Object instanceOfMyClass = constructor.newInstance(parameters);
 
-            ((BaseAsyncTask)instanceOfMyClass).onTryAgainOk();
+            if(which == BaseDialog.IDialogHandler.POSITIVE_BUTTON) {
+                ((BaseAsyncTask)instanceOfMyClass).onTryAgainOk(dialog);
+            }else {
+                ((BaseAsyncTask)instanceOfMyClass).onTryAgainCancel(dialog);
+            }
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

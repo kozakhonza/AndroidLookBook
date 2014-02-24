@@ -13,7 +13,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "LookBook";
 
     private static final BaseDbObject[] tableList = new BaseDbObject[]{
-            new Item()
+            new Item(),
+            new Shop()
     };
 
     public DatabaseHandler(Context context) {

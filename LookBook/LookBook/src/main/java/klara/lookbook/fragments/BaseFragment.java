@@ -1,6 +1,7 @@
 package klara.lookbook.fragments;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
@@ -17,6 +18,12 @@ public abstract class BaseFragment extends Fragment implements BaseDialog.IDialo
     public String TAG = "klara.lookbook.fragments.BaseFragment";
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
     public void onBtnClick(int dialogId, BaseDialog dialog, int which) {
 
     }
@@ -31,7 +38,12 @@ public abstract class BaseFragment extends Fragment implements BaseDialog.IDialo
             Object[] parameters = {this};
             Object instanceOfMyClass = constructor.newInstance(parameters);
 
-            ((BaseAsyncTask)instanceOfMyClass).onTryAgainOk();
+            if(which == BaseDialog.IDialogHandler.POSITIVE_BUTTON) {
+                ((BaseAsyncTask)instanceOfMyClass).onTryAgainOk(dialog);
+            }else {
+                ((BaseAsyncTask)instanceOfMyClass).onTryAgainCancel(dialog);
+            }
+
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

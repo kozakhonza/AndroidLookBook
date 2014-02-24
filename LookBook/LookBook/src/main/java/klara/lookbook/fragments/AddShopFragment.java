@@ -15,37 +15,24 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.SimpleAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
-import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.R;
-import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.model.BaseDbObject;
-import klara.lookbook.model.Item;
-import klara.lookbook.utils.UriUtil;
+import klara.lookbook.model.Shop;
 
-public class AddItemFragment extends BaseFragment implements GooglePlayServicesClient.ConnectionCallbacks,
+public class AddShopFragment extends BaseFragment implements GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
 
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -53,24 +40,19 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     private LocationClient mLocationClient;
+    private Location location;
 
     private int reconnectCounter = 0;
 
     private String mCurrentPhotoPath = "";
     private EditText title;
-    private AutoCompleteTextView shopAutoComplete;
-    private EditText price;
-    private EditText description;
+    private EditText shopingCenter;
+    private EditText city;
+    private EditText street;
     private ImageView imageView;
 
-    JSONObject data;
-
-    // Get the dimensions of the View
-    int targetW = 320;
-    int targetH = 240;
-
-    public static AddItemFragment newInstance() {
-        AddItemFragment fragment = new AddItemFragment();
+    public static AddShopFragment newInstance() {
+        AddShopFragment fragment = new AddShopFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -85,25 +67,23 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View mainView = inflater.inflate(R.layout.fragment_add_item, container, false);
+        View mainView = inflater.inflate(R.layout.fragment_add_shop, container, false);
 
         title = (EditText) mainView.findViewById(R.id.editTextTitle);
-        shopAutoComplete = (AutoCompleteTextView) mainView.findViewById(R.id.autoCompleteTextViewShop);
-        price = (EditText) mainView.findViewById(R.id.editTextPrice);
-        description = (EditText) mainView.findViewById(R.id.editTextDescription);
+        shopingCenter = (EditText) mainView.findViewById(R.id.editTextShopingCenter);
+        city = (EditText) mainView.findViewById(R.id.editTextCity);
+        street = (EditText) mainView.findViewById(R.id.editTextStreet);
         imageView = (ImageView) mainView.findViewById(R.id.imageView);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                targetW = imageView.getWidth();
-                targetH = imageView.getHeight();
                 takeThePicture();
             }
         });
         mainView.findViewById(R.id.btn_save).setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveItem();
+                saveShop();
             }
         });
         return mainView;
@@ -115,11 +95,6 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
         if(googleServicesConnected()) {
             mLocationClient.connect();
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     private File createImageFile() throws IOException {
@@ -147,7 +122,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                ex.printStackTrace(); // todo pokud neexistuje dana slozka tak ji vytvorit
+                // Error occurred while creating the File
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
@@ -198,36 +173,43 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
     }
 
     private void setPic() {
+        // Get the dimensions of the View
+        int targetW = imageView.getWidth();
+        int targetH = imageView.getHeight();
 
-//        // Get the dimensions of the bitmap
-//        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-//        bmOptions.inJustDecodeBounds = true;
-//        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-//        int photoW = bmOptions.outWidth;
-//        int photoH = bmOptions.outHeight;
-//
-//        // Determine how much to scale down the image
-//        int scaleFactor = Math.min(photoW/targetW, photoH/targetH); todo division by zero
-//
-//        // Decode the image file into a Bitmap sized to fill the View
-//        bmOptions.inJustDecodeBounds = false;
-//        bmOptions.inSampleSize = scaleFactor;
-//        bmOptions.inPurgeable = true;
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
 
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
         imageView.setImageBitmap(bitmap);
     }
 
-    private void saveItem() {
+    private void saveShop() {
         if(validInputs()) {
-            Item item = BaseDbObject.newInstance(this.getActivity(), Item.class);
-            item.setTitle(title.getText().toString());
-            item.setShopId(shopAutoComplete.getListSelection());
-            item.setPrice( (int)(Float.valueOf(price.getText().toString())* 1000));
-            item.setCurrency(0);
-            item.setDescription(description.getText().toString());
-            item.setImageUri(mCurrentPhotoPath);
-            item.save();
+            Shop shop = BaseDbObject.newInstance(this.getActivity(), Shop.class);
+            shop.setTitle(title.getText().toString());
+            shop.setShopingCenter(shopingCenter.getText().toString());
+            shop.setCity(city.getText().toString());
+            shop.setStreet(street.getText().toString());
+            if(location != null) {
+                shop.setLat(location.getLatitude());
+                shop.setLng(location.getLongitude());
+            }
+
+            shop.setImageUri(mCurrentPhotoPath);
+            shop.save();
         }
     }
 
@@ -244,21 +226,13 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
 
     @Override
     public void onConnected(Bundle bundle) {
-        Location location = mLocationClient.getLastLocation();
-        if(location != null) {
-            ArrayList<NameValuePair> values = new ArrayList<NameValuePair>();
-            values.add(new BasicNameValuePair(UriUtil.PARAM_LAT, String.valueOf(location.getLatitude())));
-            values.add(new BasicNameValuePair(UriUtil.PARAM_LNG, String.valueOf(location.getLongitude())));
-            values.add(new BasicNameValuePair(UriUtil.PARAM_ACCURACY, String.valueOf(location.getAccuracy() * 2)));
-
-            GetNearestShopTask task = new GetNearestShopTask();
-            task.init(this, UriUtil.URL_GET_NEAREST_SHOP,values, true);
-            task.execute();
-        }else if(reconnectCounter < 3){
+        location = mLocationClient.getLastLocation();
+        if (location == null && reconnectCounter < 3) {
             reconnectLocation();
         }else {
             //todo - ukazat hlasku ze se nepovedlo zjiskat soucasnou polohu ...
         }
+
     }
 
     @Override
@@ -304,39 +278,6 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             return mDialog;
-        }
-    }
-
-    private class GetNearestShopTask extends BaseAsyncTask {
-
-        @Override
-        protected void onPostExecute(Object o) {
-            super.onPostExecute(o);
-            AddItemFragment.this.data = data;
-            if(data != null) {
-                try {
-                    JSONArray jsonShops = data.names();
-                    int length = jsonShops.length();
-                    String [] shops = new String[length];
-                    for(int i = 0; i < length; i++) {
-                        shops[i] = jsonShops.getString(i);
-                    }
-
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                            android.R.layout.simple_list_item_1, shops);
-                    shopAutoComplete.setAdapter(adapter);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        @Override
-        public void onTryAgainOk(BaseDialog dialog) {
-        }
-
-        @Override
-        public void onTryAgainCancel(BaseDialog dialog) {
         }
     }
 }

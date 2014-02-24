@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.IAsyncTaskHandler;
 import klara.lookbook.R;
+import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.exceptions.DownloadException;
 import klara.lookbook.exceptions.UnauthorizedException;
 import klara.lookbook.utils.AppPref;
@@ -175,13 +176,17 @@ public class LoginActivity extends BaseActivity {
         }
 
         @Override
-        public void onTryAgainOk() {
-
+        public void onTryAgainOk(BaseDialog dialog) {
+            mAuthTask = new UserLoginTask();
+            mAuthTask.init(LoginActivity.this,null,null,true);
+            mAuthTask.execute();
+            dialog.dismiss();
         }
 
         @Override
-        public void onTryAgainCancel() {
-
+        public void onTryAgainCancel(BaseDialog dialog) {
+            dialog.dismiss();
+            mAuthTask = null;
         }
     }
 }

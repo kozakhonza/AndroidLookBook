@@ -24,8 +24,8 @@ import klara.lookbook.exceptions.DownloadException;
 import klara.lookbook.exceptions.UnauthorizedException;
 
 public class UriUtil {
-//    public static final String URL_SERVER = "http://192.168.1.104/klarka/php";
-    public static final String URL_SERVER = "http://klarka-itnerds.rhcloud.com";
+    public static final String URL_SERVER = "http://192.168.1.104/klarka/php";
+//    public static final String URL_SERVER = "http://klarka-itnerds.rhcloud.com";
 
     public static final String URL_LOGIN = "/users/loginMb";
     public static final String URL_GET_NEAREST_SHOP = "/shops/nearestShopsMb";
@@ -35,6 +35,7 @@ public class UriUtil {
     public static final String PARAM_PASSWORD = "password";
     public static final String PARAM_LAT = "lat";
     public static final String PARAM_LNG = "lng";
+    public static final String PARAM_ACCURACY = "accuracy";
 
     public static final String VALUE_OK = "1";
     public static final String VALUE_FAIL = "0";

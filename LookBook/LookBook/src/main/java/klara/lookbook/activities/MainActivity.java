@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import klara.lookbook.R;
 import klara.lookbook.fragments.AddItemFragment;
+import klara.lookbook.fragments.AddShopFragment;
 import klara.lookbook.fragments.NavigationDrawerFragment;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -54,10 +55,10 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
                 fragment = PlaceholderFragment.newInstance(position + 1);
                 break;
             case 1:
-                fragment = AddItemFragment.newInstance("test", "test");
+                fragment = AddItemFragment.newInstance();
                 break;
             case 2:
-                fragment = PlaceholderFragment.newInstance(position + 1);
+                fragment = AddShopFragment.newInstance();
                 break;
             default:
                 fragment = PlaceholderFragment.newInstance(position + 1);

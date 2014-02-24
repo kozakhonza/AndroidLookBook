@@ -44,7 +44,7 @@ public abstract class BaseAsyncTask extends AsyncTask {
             }
         }else {
             throw new ClassCastException(this.getClass().getName()
-                    + " must implement OnFragmentInteractionListener");
+                    + " nebyla zavolana funkce init pred execute");
         }
     }
 
@@ -87,6 +87,6 @@ public abstract class BaseAsyncTask extends AsyncTask {
         TryAgainDialog.newInstance(1, handler.myGetTag(), this.getClass().getName()).show(handler.myGetFragmentManager(), "tryAgain");
     }
 
-    public abstract void onTryAgainOk();
-    public abstract void onTryAgainCancel();
+    public abstract void onTryAgainOk(BaseDialog dialog);
+    public abstract void onTryAgainCancel(BaseDialog dialog);
 }
