@@ -8,14 +8,14 @@ public class Shop extends BaseDbObject {
 
     public static abstract class ShopColumns implements BaseColumns {
         public static final String TABLE_NAME = "Shop";
-        public static final String COLUMN_SHOP_ID = "shop_id";
+        public static final String COLUMN_SHOP_ID = "id";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_SHOPING_CENTER = "shoppingCenter";
         public static final String COLUMN_CITY = "city";
         public static final String COLUMN_STREET = "street";
         public static final String COLUMN_LAT= "lat";
         public static final String COLUMN_LNG = "lng";
-        public static final String COLUMN_IMAGE = "image";
+        public static final String COLUMN_IMAGE = "file_image";
     }
 
     private static final String SQL_CREATE_ENTRIES =
@@ -28,7 +28,7 @@ public class Shop extends BaseDbObject {
                     ShopColumns.COLUMN_STREET + " VARCHAR(50)," +
                     ShopColumns.COLUMN_LAT + " DOUBLE," +
                     ShopColumns.COLUMN_LNG + " DOUBLE," +
-                    ShopColumns.COLUMN_IMAGE + " VARCHAR(30)," +
+                    ShopColumns.COLUMN_IMAGE + " VARCHAR(30)" +
             " )";
 
     private String[] colums = new String[] {
@@ -57,7 +57,7 @@ public class Shop extends BaseDbObject {
     }
 
     @Override
-    protected ContentValues getValues() {
+    public ContentValues getValues() {
         ContentValues values = new ContentValues();
         values.put(ShopColumns.COLUMN_SHOP_ID, id);
         values.put(ShopColumns.COLUMN_TITLE, title);

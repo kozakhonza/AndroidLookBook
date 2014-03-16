@@ -4,17 +4,20 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Item extends BaseDbObject {
 
     public static abstract class ItemColumns implements BaseColumns {
         public static final String TABLE_NAME = "Item";
-        public static final String COLUMN_ITEM_ID = "item_id";
+        public static final String COLUMN_ITEM_ID = "id";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_SHOP_ID = "shop_id";
         public static final String COLUMN_PRICE = "price";
         public static final String COLUMN_CURRENCY = "currency";
         public static final String COLUMN_DESCRIPTION = "description";
-        public static final String COLUMN_IMAGE = "image";
+        public static final String COLUMN_IMAGE = "file_image";
     }
 
     private static final String SQL_CREATE_ENTRIES =
@@ -26,7 +29,7 @@ public class Item extends BaseDbObject {
                     ItemColumns.COLUMN_PRICE + " INTEGER," +
                     ItemColumns.COLUMN_CURRENCY + " INTEGER," +
                     ItemColumns.COLUMN_DESCRIPTION + " TEXT," +
-                    ItemColumns.COLUMN_IMAGE + " VARCHAR(30)," +
+                    ItemColumns.COLUMN_IMAGE + " VARCHAR(30)" +
             " )";
 
     private String[] colums = new String[] {
@@ -54,7 +57,7 @@ public class Item extends BaseDbObject {
     }
 
     @Override
-    protected ContentValues getValues() {
+    public ContentValues getValues() {
         ContentValues values = new ContentValues();
         values.put(ItemColumns.COLUMN_ITEM_ID, id);
         values.put(ItemColumns.COLUMN_TITLE, title);
@@ -73,13 +76,30 @@ public class Item extends BaseDbObject {
 
     @Override
     protected void initFromCursor(Cursor cursor) {
-        id = cursor.getInt(0);
-        title = cursor.getString(1);
-        shopId = cursor.getInt(2);
-        price = cursor.getInt(3);
-        currency = cursor.getInt(4);
-        description = cursor.getString(5);
-        imageUri = cursor.getString(6);
+        super.initFromCursor(cursor);
+        id = cursor.getInt(cursor.getColumnIndex(ItemColumns.COLUMN_ITEM_ID));
+        title = cursor.getString(cursor.getColumnIndex(ItemColumns.COLUMN_TITLE));
+        shopId = cursor.getInt(cursor.getColumnIndex(ItemColumns.COLUMN_SHOP_ID));
+        price = cursor.getInt(cursor.getColumnIndex(ItemColumns.COLUMN_PRICE));
+        currency = cursor.getInt(cursor.getColumnIndex(ItemColumns.COLUMN_CURRENCY));
+        description = cursor.getString(cursor.getColumnIndex(ItemColumns.COLUMN_DESCRIPTION));
+        imageUri = cursor.getString(cursor.getColumnIndex(ItemColumns.COLUMN_IMAGE));
+    }
+
+    @Override
+    protected void initFromJsonObject(JSONObject object) {
+        super.initFromJsonObject(object);
+        try {
+            id = object.getInt(ItemColumns.COLUMN_ITEM_ID);
+            title = object.getString(ItemColumns.COLUMN_TITLE);
+            shopId = object.getInt(ItemColumns.COLUMN_SHOP_ID);
+            price = object.getInt(ItemColumns.COLUMN_PRICE);
+            currency = object.getInt(ItemColumns.COLUMN_CURRENCY);
+            description = object.getString(ItemColumns.COLUMN_DESCRIPTION);
+            imageUri = object.getString(ItemColumns.COLUMN_IMAGE); // todo dekodovat base64 a ulozit file na uloziste
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getTitle() {

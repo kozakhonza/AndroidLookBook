@@ -44,12 +44,16 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
 
     private int reconnectCounter = 0;
 
-    private String mCurrentPhotoPath = "";
     private EditText title;
     private EditText shopingCenter;
     private EditText city;
     private EditText street;
     private ImageView imageView;
+
+    private String mCurrentPhotoPath = "";
+    private int targetW;
+    private int targetH;
+    private boolean photoTaked = false;
 
     public static AddShopFragment newInstance() {
         AddShopFragment fragment = new AddShopFragment();
@@ -62,6 +66,22 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mLocationClient = new LocationClient(getActivity(), this, this);
+
+        if(savedInstanceState != null) {
+            mCurrentPhotoPath = savedInstanceState.getString("mCurrentPhotoPath");
+            targetW = savedInstanceState.getInt("targetW");
+            targetH = savedInstanceState.getInt("targetH");
+            photoTaked = savedInstanceState.getBoolean("photoTaked");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("mCurrentPhotoPath", mCurrentPhotoPath);
+        outState.putInt("targetW", targetW);
+        outState.putInt("targetH", targetH);
+        outState.putBoolean("photoTaked", photoTaked);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -97,6 +117,14 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(photoTaked) {
+            setPic();
+        }
+    }
+
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -109,7 +137,7 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
                 storageDir      /* directory */
         );
 
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
@@ -117,14 +145,12 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(this.getActivity().getPackageManager()) != null) {
-            // Create the File where the photo should go
             File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                // Error occurred while creating the File
+                ex.printStackTrace(); // todo pokud neexistuje dana slozka tak ji vytvorit
             }
-            // Continue only if the File was successfully created
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
@@ -155,12 +181,12 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
         return false;
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE:
                 if( resultCode == Activity.RESULT_OK){
+                    photoTaked = true;
                     setPic();
                 }
                 break;
@@ -173,9 +199,6 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
     }
 
     private void setPic() {
-        // Get the dimensions of the View
-        int targetW = imageView.getWidth();
-        int targetH = imageView.getHeight();
 
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();

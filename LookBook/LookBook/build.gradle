@@ -21,5 +21,11 @@ android {
 dependencies {
     compile 'com.android.support:support-v4:19.0.1'
     compile 'com.android.support:appcompat-v7:19.0.1'
-    compile 'com.google.android.gms:play-services:4.0.30'
+    compile 'com.google.android.gms:play-services:4.1.32'
+    compile('org.apache.httpcomponents:httpmime:4.+') {
+        exclude module: "httpclient"
+    }
+    compile('org.apache.httpcomponents:httpcore:4.+') {
+        exclude module: "httpclient"
+    }
 }

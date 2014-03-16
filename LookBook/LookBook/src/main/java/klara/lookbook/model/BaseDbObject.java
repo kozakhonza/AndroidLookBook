@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +14,9 @@ import java.util.List;
 public abstract class BaseDbObject {
 
     private static DatabaseHandler dbHandler;
-    protected String COL_ID = "id";
 
     protected Context context;
-    protected int id = -1;
+    protected int _id = -1;
 
     public static <T extends BaseDbObject> T newInstance(Context context, Class<T> c) {
         try {
@@ -49,12 +51,15 @@ public abstract class BaseDbObject {
             if(where != null) {
                 T object = c.newInstance();
                 String selectQuery = "SELECT * FROM " + object.getTableName();
-                selectQuery += " WHERE "+where;
+                if(where != null && !where.isEmpty()) {
+                    selectQuery += " WHERE "+where;
+                }
                 SQLiteDatabase db = object.getDbHandler().getReadableDatabase();
                 Cursor cursor = db.rawQuery(selectQuery, null);
                 if (cursor.moveToFirst()) {
                     do {
                         object = c.newInstance();
+                        object.context = context;
                         object.initFromCursor(cursor);
                         list.add(object);
                     } while (cursor.moveToNext());
@@ -69,17 +74,30 @@ public abstract class BaseDbObject {
         return list;
     }
 
+    public static <T extends BaseDbObject> T parseFromJsonObject(Context context, Class<T> c, JSONObject jsonObject) {
+        try {
+            T object = c.newInstance();
+            object.context = context;
+            object.initFromJsonObject(jsonObject);
+            return object;
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public void save() {
         SQLiteDatabase db = getDbHandler().getWritableDatabase();
 
         ContentValues values = getValues();
 
-        if(id == -1) { // new Object
+        if(_id == -1) { // new Object
             db.insert(getTableName(), null, values);
         }else {
-            db.update(getTableName(), values, COL_ID + " = ?",
-                    new String[] { String.valueOf(id)});
+            db.update(getTableName(), values, BaseColumns._ID + " = ?",
+                    new String[] { String.valueOf(_id)});
         }
         db.close();
     }
@@ -87,7 +105,7 @@ public abstract class BaseDbObject {
     protected void _initById(int id) {
         SQLiteDatabase db = getDbHandler().getWritableDatabase();
 
-        Cursor cursor = db.query(getTableName(), getColumns(), COL_ID + "=?",
+        Cursor cursor = db.query(getTableName(), getColumns(), BaseColumns._ID + "=?",
                 new String[] { String.valueOf(id) }, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
@@ -105,8 +123,8 @@ public abstract class BaseDbObject {
 
     public void delete() {
         SQLiteDatabase db = getDbHandler().getWritableDatabase();
-        db.delete(getTableName(), COL_ID + " = ?",
-                new String[] { String.valueOf(id) });
+        db.delete(getTableName(), BaseColumns._ID + " = ?",
+                new String[] { String.valueOf(_id) });
         db.close();
     }
 
@@ -126,13 +144,20 @@ public abstract class BaseDbObject {
         this.context = context;
     }
     protected String getTableName() {
-        return getClass().getSimpleName().toLowerCase();
+        return getClass().getSimpleName();
     }
 
     public abstract String getCreateTableString();
     public abstract String getUpgradeTableString();
 
-    protected abstract ContentValues getValues();
+    public abstract ContentValues getValues();
     protected abstract String[] getColumns();
-    protected abstract void initFromCursor(Cursor cursor);
+
+    protected void initFromCursor(Cursor cursor){
+        _id = cursor.getInt(cursor.getColumnIndex(BaseColumns._ID));
+    }
+
+    protected void initFromJsonObject(JSONObject object) {
+
+    }
 }

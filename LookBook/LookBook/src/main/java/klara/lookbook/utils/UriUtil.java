@@ -1,24 +1,30 @@
 package klara.lookbook.utils;
 
+import android.content.ContentValues;
 import android.content.Context;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.util.Map;
 
 import klara.lookbook.exceptions.DownloadException;
 import klara.lookbook.exceptions.UnauthorizedException;
@@ -29,6 +35,9 @@ public class UriUtil {
 
     public static final String URL_LOGIN = "/users/loginMb";
     public static final String URL_GET_NEAREST_SHOP = "/shops/nearestShopsMb";
+    public static final String URL_SAVE_ITEM = "/shops/saveItemMb";
+    public static final String URL_SAVE_SHOP = "/shops/saveShopMb";
+    public static final String URL_VIEW_ITEMS = "/shops/viewItemsMb";
 
     public static final String PARAM_IS_MOBILE_REQUEST = "an_is_mobile";
     public static final String PARAM_EMAIL = "username";
@@ -54,10 +63,10 @@ public class UriUtil {
      * @throws DownloadException
      */
     public boolean login(String email, String password) throws DownloadException, UnauthorizedException {
-        ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_PASSWORD, password));
-        params.add(new BasicNameValuePair(PARAM_EMAIL, email));
-        JSONObject jsonObj = _post(URL_LOGIN, params);
+        ContentValues values = new ContentValues();
+        values.put(PARAM_PASSWORD, password);
+        values.put(PARAM_EMAIL, email);
+        JSONObject jsonObj = _post(URL_LOGIN, values);
         if(jsonObj != null) {
             try {
                 if(jsonObj.getString("succes").equals(VALUE_OK)) {
@@ -92,12 +101,12 @@ public class UriUtil {
         }
     }
 
-    public JSONObject post(String url,ArrayList<NameValuePair> params) throws DownloadException, UnauthorizedException {
+    public JSONObject post(String url, ContentValues values) throws DownloadException, UnauthorizedException {
         try {
-            return  _post(url, params);
+            return  _post(url, values);
         } catch (UnauthorizedException e) {
             if(login()) { // try relogin
-                return _post(url, params);
+                return _post(url, values);
             }else {
                 throw new UnauthorizedException();
             }
@@ -138,20 +147,34 @@ public class UriUtil {
         return json;
     }
 
-    private JSONObject _post(String url,ArrayList<NameValuePair> params) throws DownloadException, UnauthorizedException {
+    private JSONObject _post(String url,ContentValues values) throws DownloadException, UnauthorizedException {
         // parametr, oznacujici danny request jako pozadavek odeslany s mobilni aplikace
-        params.add(new BasicNameValuePair(PARAM_IS_MOBILE_REQUEST, "1"));
+        values.put(PARAM_IS_MOBILE_REQUEST, "1");
         if(client == null) {
             client = new DefaultHttpClient();
         }
 
         HttpPost post = new HttpPost(URL_SERVER+url);
+        HttpContext localContext = new BasicHttpContext();
         HttpResponse response;
         JSONObject json;
 
         try {
-            post.setEntity(new UrlEncodedFormEntity(params));
-            response = client.execute(post);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            for(Map.Entry<String, Object> entry : values.valueSet()) {
+                if(entry.getKey().toLowerCase().contains("file")) {
+                    File file = new File(entry.getValue().toString());
+                    FileBody fb = new FileBody(file);
+                    builder.addPart(entry.getKey(), fb);
+                }else {
+                    builder.addPart(entry.getKey(), new StringBody(entry.getValue().toString(), ContentType.APPLICATION_FORM_URLENCODED) );
+                }
+            }
+            HttpEntity postEntity = builder.build();
+            post.setEntity(postEntity);
+
+            response = client.execute(post, localContext);
             if(response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 throw new UnauthorizedException();
             }

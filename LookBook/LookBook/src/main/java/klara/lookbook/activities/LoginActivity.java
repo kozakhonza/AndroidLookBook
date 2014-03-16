@@ -9,12 +9,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.apache.http.NameValuePair;
-
-import java.util.ArrayList;
-
 import klara.lookbook.BaseAsyncTask;
-import klara.lookbook.IAsyncTaskHandler;
 import klara.lookbook.R;
 import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.exceptions.DownloadException;
@@ -65,8 +60,6 @@ public class LoginActivity extends BaseActivity {
         });
 
         mPasswordView.setText(mPassword);
-        View mLoginFormView = findViewById(R.id.login_form);
-        View mLoginStatusView = findViewById(R.id.login_status);
         mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
@@ -173,6 +166,7 @@ public class LoginActivity extends BaseActivity {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
+            mAuthTask = null;
         }
 
         @Override

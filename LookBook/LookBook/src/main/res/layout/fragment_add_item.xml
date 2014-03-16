@@ -6,7 +6,7 @@
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             >
 
@@ -16,9 +16,7 @@
             android:id="@+id/imageView"
             android:layout_gravity="right|top"
             android:background="#cdcdcd"
-            android:layout_alignParentLeft="true"
             android:layout_marginLeft="0dp"
-            android:layout_alignParentTop="true"
             android:clickable="true"
             android:layout_marginTop="0dp"
             android:minHeight="40dp"
@@ -33,8 +31,6 @@
             android:layout_height="0dp"
             android:layout_gravity="center_horizontal|bottom"
             android:gravity="top"
-            android:layout_below="@+id/imageView"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_weight="3"
             android:paddingLeft="8dp"
@@ -52,7 +48,6 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="Nazev"
-                    android:id="@+id/textViewShop"
                     android:gravity="center_horizontal" />
             </TableRow>
 
@@ -68,7 +63,8 @@
                     android:hint="Svetr"
                     android:layout_column="0"
                     android:textColor="#000000"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:layout_weight="0.8" />
             </TableRow>
 
             <TableRow
@@ -89,16 +85,17 @@
             <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:layout_weight="1">
 
                 <AutoCompleteTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/autoCompleteTextViewShop"
-                    android:hint="Město, Prodejna..."
+                    android:hint=" Prodejna, Město ..."
                     android:layout_column="0"
                     android:textColor="#000000"
-                    android:maxWidth="120dp" />
+                    android:layout_weight="0.8" />
             </TableRow>
 
             <TableRow
@@ -125,11 +122,12 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
+                    android:inputType="numberDecimal"
                     android:ems="10"
                     android:hint="999.90"
                     android:id="@+id/editTextPrice"
-                    android:layout_column="0" />
+                    android:layout_column="0"
+                    android:layout_weight="0.8" />
             </TableRow>
 
             <TableRow
@@ -162,7 +160,8 @@
                     android:id="@+id/editTextDescription"
                     android:layout_column="0"
                     android:minLines="4"
-                    android:gravity="top" />
+                    android:gravity="top"
+                    android:layout_weight="0.8" />
             </TableRow>
 
         </TableLayout>

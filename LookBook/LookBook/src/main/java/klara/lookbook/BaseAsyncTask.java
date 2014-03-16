@@ -1,12 +1,10 @@
 
 package klara.lookbook;
 
+import android.content.ContentValues;
 import android.os.AsyncTask;
 
-import org.apache.http.NameValuePair;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.dialogs.ProgressDialog;
@@ -18,7 +16,7 @@ import klara.lookbook.utils.UriUtil;
 public abstract class BaseAsyncTask extends AsyncTask {
 
     protected String url;
-    protected ArrayList<NameValuePair> params;
+    protected ContentValues params;
     protected boolean showDialog;
     protected IAsyncTaskHandler handler;
     protected BaseDialog dialog;
@@ -26,7 +24,7 @@ public abstract class BaseAsyncTask extends AsyncTask {
 
     private boolean wasInitCall = false;
 
-    public void init(IAsyncTaskHandler handler, String url, ArrayList<NameValuePair> params, boolean showDialog) {
+    public void init(IAsyncTaskHandler handler, String url, ContentValues params, boolean showDialog) {
         this.url = url;
         this.params = params;
         this.showDialog = showDialog;
