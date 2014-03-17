@@ -2,10 +2,19 @@ package klara.lookbook.model;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.BaseColumns;
+import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import klara.lookbook.utils.ImageUtil;
 
 public class Item extends BaseDbObject {
 
@@ -15,7 +24,7 @@ public class Item extends BaseDbObject {
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_SHOP_ID = "shop_id";
         public static final String COLUMN_PRICE = "price";
-        public static final String COLUMN_CURRENCY = "currency";
+        public static final String COLUMN_CURRENCY = "currency_id";
         public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_IMAGE = "file_image";
     }
@@ -30,7 +39,7 @@ public class Item extends BaseDbObject {
                     ItemColumns.COLUMN_CURRENCY + " INTEGER," +
                     ItemColumns.COLUMN_DESCRIPTION + " TEXT," +
                     ItemColumns.COLUMN_IMAGE + " VARCHAR(30)" +
-            " )";
+            " );";
 
     private String[] colums = new String[] {
             ItemColumns.COLUMN_ITEM_ID, ItemColumns.COLUMN_TITLE, ItemColumns.COLUMN_SHOP_ID,
@@ -90,13 +99,27 @@ public class Item extends BaseDbObject {
     protected void initFromJsonObject(JSONObject object) {
         super.initFromJsonObject(object);
         try {
-            id = object.getInt(ItemColumns.COLUMN_ITEM_ID);
-            title = object.getString(ItemColumns.COLUMN_TITLE);
-            shopId = object.getInt(ItemColumns.COLUMN_SHOP_ID);
-            price = object.getInt(ItemColumns.COLUMN_PRICE);
-            currency = object.getInt(ItemColumns.COLUMN_CURRENCY);
-            description = object.getString(ItemColumns.COLUMN_DESCRIPTION);
-            imageUri = object.getString(ItemColumns.COLUMN_IMAGE); // todo dekodovat base64 a ulozit file na uloziste
+            id = object.isNull(ItemColumns.COLUMN_ITEM_ID) ?
+                    -1 : object.getInt(ItemColumns.COLUMN_ITEM_ID);
+
+            title = object.isNull(ItemColumns.COLUMN_TITLE) ?
+                    "" : object.getString(ItemColumns.COLUMN_TITLE);
+
+            shopId = object.isNull(ItemColumns.COLUMN_SHOP_ID) ?
+                    -1 : object.getInt(ItemColumns.COLUMN_SHOP_ID);
+
+            price = object.isNull(ItemColumns.COLUMN_PRICE) ?
+                    -1 : object.getInt(ItemColumns.COLUMN_PRICE);
+
+            currency = object.isNull(ItemColumns.COLUMN_CURRENCY) ?
+                    -1 : object.getInt(ItemColumns.COLUMN_CURRENCY);
+
+            description = object.isNull(ItemColumns.COLUMN_DESCRIPTION) ?
+                    "" : object.getString(ItemColumns.COLUMN_DESCRIPTION);
+
+            imageUri = object.isNull("image") ?
+                    null : ImageUtil.saveBase64ImgToFile(object.getString("image"));
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

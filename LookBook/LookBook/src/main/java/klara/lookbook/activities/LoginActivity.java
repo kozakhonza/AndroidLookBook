@@ -170,7 +170,7 @@ public class LoginActivity extends BaseActivity {
         }
 
         @Override
-        public void onTryAgainOk(BaseDialog dialog) {
+        public void onTryAgainOk(BaseDialog dialog) { // todo vyresit pripad kde se nepovede spojit ze serverem, aby se neukazal error ze jse spatne heslo
             mAuthTask = new UserLoginTask();
             mAuthTask.init(LoginActivity.this,null,null,true);
             mAuthTask.execute();

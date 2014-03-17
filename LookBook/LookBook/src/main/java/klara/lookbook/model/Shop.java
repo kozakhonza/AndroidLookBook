@@ -4,6 +4,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import klara.lookbook.utils.ImageUtil;
+
 public class Shop extends BaseDbObject {
 
     public static abstract class ShopColumns implements BaseColumns {
@@ -29,7 +34,7 @@ public class Shop extends BaseDbObject {
                     ShopColumns.COLUMN_LAT + " DOUBLE," +
                     ShopColumns.COLUMN_LNG + " DOUBLE," +
                     ShopColumns.COLUMN_IMAGE + " VARCHAR(30)" +
-            " )";
+            " );";
 
     private String[] colums = new String[] {
             ShopColumns.COLUMN_SHOP_ID, ShopColumns.COLUMN_TITLE, ShopColumns.COLUMN_SHOPING_CENTER,
@@ -64,8 +69,8 @@ public class Shop extends BaseDbObject {
         values.put(ShopColumns.COLUMN_SHOPING_CENTER, shopingCenter);
         values.put(ShopColumns.COLUMN_CITY, city);
         values.put(ShopColumns.COLUMN_STREET, street);
-        values.put(ShopColumns.COLUMN_LAT, lng);
-        values.put(ShopColumns.COLUMN_LNG, lat);
+        values.put(ShopColumns.COLUMN_LAT, lat);
+        values.put(ShopColumns.COLUMN_LNG, lng);
         values.put(ShopColumns.COLUMN_IMAGE, imageUri);
         return values;
     }
@@ -77,14 +82,49 @@ public class Shop extends BaseDbObject {
 
     @Override
     protected void initFromCursor(Cursor cursor) {
-        id = cursor.getInt(0);
-        title = cursor.getString(1);
-        shopingCenter = cursor.getString(2);
-        city = cursor.getString(3);
-        street = cursor.getString(4);
-        lat = cursor.getDouble(5);
-        lng = cursor.getDouble(6);
-        imageUri = cursor.getString(7);
+        super.initFromCursor(cursor);
+        id = cursor.getInt(cursor.getColumnIndex(ShopColumns.COLUMN_SHOP_ID));
+        title = cursor.getString(cursor.getColumnIndex(ShopColumns.COLUMN_TITLE));
+        shopingCenter = cursor.getString(cursor.getColumnIndex(ShopColumns.COLUMN_SHOPING_CENTER));
+        city = cursor.getString(cursor.getColumnIndex(ShopColumns.COLUMN_CITY));
+        street = cursor.getString(cursor.getColumnIndex(ShopColumns.COLUMN_STREET));
+        lat = cursor.getDouble(cursor.getColumnIndex(ShopColumns.COLUMN_LAT));
+        lng = cursor.getDouble(cursor.getColumnIndex(ShopColumns.COLUMN_LNG));
+        imageUri = cursor.getString(cursor.getColumnIndex(ShopColumns.COLUMN_IMAGE));
+    }
+
+    @Override
+    protected void initFromJsonObject(JSONObject object) {
+        super.initFromJsonObject(object);
+        try {
+            id = object.isNull(ShopColumns.COLUMN_SHOP_ID) ?
+                    -1 : object.getInt(ShopColumns.COLUMN_SHOP_ID);
+
+            title = object.isNull(ShopColumns.COLUMN_TITLE) ?
+                    "" : object.getString(ShopColumns.COLUMN_TITLE);
+
+            shopingCenter = object.isNull(ShopColumns.COLUMN_SHOPING_CENTER) ?
+                    "" : object.getString(ShopColumns.COLUMN_SHOPING_CENTER);
+
+            city = object.isNull(ShopColumns.COLUMN_CITY) ?
+                    "" : object.getString(ShopColumns.COLUMN_CITY);
+
+            street = object.isNull(ShopColumns.COLUMN_STREET) ?
+                    "" : object.getString(ShopColumns.COLUMN_STREET);
+
+            lat = object.isNull(ShopColumns.COLUMN_LAT) ?
+                    0.0 : object.getDouble(ShopColumns.COLUMN_LAT);
+
+
+            lng = object.isNull(ShopColumns.COLUMN_LNG) ?
+                    0.0 : object.getDouble(ShopColumns.COLUMN_LNG);
+
+            imageUri = object.isNull("image") ?
+                    null : ImageUtil.saveBase64ImgToFile(object.getString("image"));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getId() {

@@ -21,4 +21,8 @@
         <item name="android:background">@android:color/background_dark</item>
     </style>
 
+    <style name="MyAutoCompleteStyle" parent="android:Widget.DropDownItem.Spinner">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
 </resources>

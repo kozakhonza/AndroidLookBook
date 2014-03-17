@@ -50,6 +50,7 @@ public abstract class BaseDbObject {
         try {
             if(where != null) {
                 T object = c.newInstance();
+                object.context = context;
                 String selectQuery = "SELECT * FROM " + object.getTableName();
                 if(where != null && !where.isEmpty()) {
                     selectQuery += " WHERE "+where;

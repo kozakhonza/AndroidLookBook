@@ -1,8 +1,10 @@
 package klara.lookbook;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +17,7 @@ import klara.lookbook.exceptions.UnauthorizedException;
 import klara.lookbook.model.BaseDbObject;
 import klara.lookbook.model.Item;
 import klara.lookbook.model.Shop;
+import klara.lookbook.utils.AppPref;
 import klara.lookbook.utils.UriUtil;
 
 public class SynchronizeService extends IntentService {
@@ -94,7 +97,8 @@ public class SynchronizeService extends IntentService {
         UriUtil util = new UriUtil(getApplicationContext());
         JSONObject response;
         try {
-            response = util.post(uri, object.getValues());
+            ContentValues values = object.getValues();
+            response = util.post(uri, values);
             return response != null && response.getString("succes").equals(UriUtil.VALUE_OK);
         } catch (DownloadException e) {
             e.printStackTrace();

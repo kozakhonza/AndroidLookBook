@@ -2,9 +2,12 @@ package klara.lookbook.model;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+
+import klara.lookbook.utils.AppPref;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -13,8 +16,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "LookBook";
 
     private static final BaseDbObject[] tableList = new BaseDbObject[]{
-            new Item(),
-            new Shop()
+            new Shop(),
+            new Item()
     };
 
     public DatabaseHandler(Context context) {
@@ -23,11 +26,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLES = "";
         for(BaseDbObject table : tableList) {
-            CREATE_TABLES += table.getCreateTableString() + ";";
+            db.execSQL( table.getCreateTableString());
         }
-        db.execSQL(CREATE_TABLES);
+
     }
 
     @Override

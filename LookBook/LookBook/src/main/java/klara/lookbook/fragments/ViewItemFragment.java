@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,7 +26,7 @@ import klara.lookbook.utils.UriUtil;
 
 public class ViewItemFragment extends BaseFragment implements AbsListView.OnItemClickListener {
 
-    private ListView mListView;
+    private GridView mListView;
     private ItemViewAdapter mAdapter;
 
     public static ViewItemFragment newInstance() {
@@ -43,7 +44,7 @@ public class ViewItemFragment extends BaseFragment implements AbsListView.OnItem
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_view_item_list, container, false);
 
-        mListView = (ListView) view.findViewById(android.R.id.list);
+        mListView = (GridView) view.findViewById(android.R.id.list);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         return view;
@@ -52,10 +53,12 @@ public class ViewItemFragment extends BaseFragment implements AbsListView.OnItem
     @Override
     public void onStart() {
         super.onStart();
-        GetItemsTask task = new GetItemsTask();
-        ContentValues values = new ContentValues();
-        task.init(this, UriUtil.URL_VIEW_ITEMS, values, true);
-        task.execute();
+        if(mAdapter.getCount() == 0) {
+            GetItemsTask task = new GetItemsTask();
+            ContentValues values = new ContentValues();
+            task.init(this, UriUtil.URL_VIEW_ITEMS, values, true);
+            task.execute();
+        }
     }
 
     @Override

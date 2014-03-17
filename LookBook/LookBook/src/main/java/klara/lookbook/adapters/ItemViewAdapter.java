@@ -14,15 +14,15 @@ import java.util.List;
 
 import klara.lookbook.R;
 import klara.lookbook.model.Item;
+import klara.lookbook.utils.Formater;
+import klara.lookbook.utils.ImageUtil;
 
 public class ItemViewAdapter extends BaseAdapter {
 
     private List<Item> items = new ArrayList<Item>();
-    private Context context;
     private LayoutInflater inflater;
 
     public ItemViewAdapter(Context context) {
-        this.context = context;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -59,6 +59,9 @@ public class ItemViewAdapter extends BaseAdapter {
         }else {
             holder = (ItemHolder)view.getTag();
         }
+
+        ImageUtil.showImageInImgeView(holder.image, item.getImageUri(),
+                Formater.dpToPx(150, inflater.getContext()), Formater.dpToPx(200, inflater.getContext()));
 
         holder.image.setImageBitmap(BitmapFactory.decodeFile(item.getImageUri()));
         holder.price.setText(item.getPrice() + " Kč");

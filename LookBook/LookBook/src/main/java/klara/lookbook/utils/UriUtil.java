@@ -35,9 +35,9 @@ public class UriUtil {
 
     public static final String URL_LOGIN = "/users/loginMb";
     public static final String URL_GET_NEAREST_SHOP = "/shops/nearestShopsMb";
-    public static final String URL_SAVE_ITEM = "/shops/saveItemMb";
+    public static final String URL_SAVE_ITEM = "/items/saveItemMb";
     public static final String URL_SAVE_SHOP = "/shops/saveShopMb";
-    public static final String URL_VIEW_ITEMS = "/shops/viewItemsMb";
+    public static final String URL_VIEW_ITEMS = "/items/viewItemsMb";
 
     public static final String PARAM_IS_MOBILE_REQUEST = "an_is_mobile";
     public static final String PARAM_EMAIL = "username";

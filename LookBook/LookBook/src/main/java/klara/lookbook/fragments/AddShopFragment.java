@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -31,6 +32,7 @@ import java.util.Date;
 import klara.lookbook.R;
 import klara.lookbook.model.BaseDbObject;
 import klara.lookbook.model.Shop;
+import klara.lookbook.utils.ImageUtil;
 
 public class AddShopFragment extends BaseFragment implements GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
@@ -54,6 +56,7 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
     private int targetW;
     private int targetH;
     private boolean photoTaked = false;
+    private Shop shop;
 
     public static AddShopFragment newInstance() {
         AddShopFragment fragment = new AddShopFragment();
@@ -97,6 +100,8 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                targetW = imageView.getWidth();
+                targetH = imageView.getHeight();
                 takeThePicture();
             }
         });
@@ -121,24 +126,8 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
     public void onResume() {
         super.onResume();
         if(photoTaked) {
-            setPic();
+            ImageUtil.showImageInImgeView(imageView, mCurrentPhotoPath, targetW, targetH);
         }
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
     }
 
     public void takeThePicture() {
@@ -147,9 +136,10 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
         if (takePictureIntent.resolveActivity(this.getActivity().getPackageManager()) != null) {
             File photoFile = null;
             try {
-                photoFile = createImageFile();
+                photoFile = ImageUtil.createImageFile();
+                mCurrentPhotoPath = photoFile.getAbsolutePath();
             } catch (IOException ex) {
-                ex.printStackTrace(); // todo pokud neexistuje dana slozka tak ji vytvorit
+                ex.printStackTrace(); // todo pokud neexistuje dana slozka tak ji vytvorit -  mozna jiz vyreseno zkontrolovat
             }
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
@@ -187,7 +177,7 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
             case REQUEST_IMAGE_CAPTURE:
                 if( resultCode == Activity.RESULT_OK){
                     photoTaked = true;
-                    setPic();
+                    ImageUtil.showImageInImgeView(imageView, mCurrentPhotoPath, targetW, targetH);
                 }
                 break;
             case CONNECTION_FAILURE_RESOLUTION_REQUEST :
@@ -198,30 +188,11 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
         }
     }
 
-    private void setPic() {
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        imageView.setImageBitmap(bitmap);
-    }
-
     private void saveShop() {
         if(validInputs()) {
-            Shop shop = BaseDbObject.newInstance(this.getActivity(), Shop.class);
+            if(shop == null) {
+                shop = BaseDbObject.newInstance(this.getActivity(), Shop.class);
+            }
             shop.setTitle(title.getText().toString());
             shop.setShopingCenter(shopingCenter.getText().toString());
             shop.setCity(city.getText().toString());
@@ -237,12 +208,31 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
     }
 
     private boolean validInputs() {
-        return true; // todo validace
+        boolean isValid = true;
+
+        if(this.title.getText().toString().isEmpty())
+        {
+            this.title.setError("Nazev musi byt vyplnen");
+            isValid = false;
+        }
+
+        if(this.city.getText().toString().isEmpty())
+        {
+            this.city.setError("Mesto musi byt vyplneno");
+            isValid = false;
+        }
+
+        if(this.mCurrentPhotoPath == null || this.mCurrentPhotoPath.isEmpty())
+        {
+            Toast.makeText(getActivity(), "Nebyla porizena fotka", Toast.LENGTH_LONG).show();
+            isValid = false;
+        }
+
+        return isValid;
     }
 
     @Override
     public void onStop() {
-        // Disconnecting the client invalidates it.
         mLocationClient.disconnect();
         super.onStop();
     }

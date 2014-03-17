@@ -20,6 +20,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -36,6 +38,7 @@ import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.model.BaseDbObject;
 import klara.lookbook.model.Item;
 import klara.lookbook.utils.AppPref;
+import klara.lookbook.utils.ImageUtil;
 import klara.lookbook.utils.UriUtil;
 
 public class AddItemFragment extends BaseFragment implements GooglePlayServicesClient.ConnectionCallbacks,
@@ -57,9 +60,12 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
 
     private String mCurrentPhotoPath;
     private String[] shops;
+    private int[] shopwIds;
+
     private int targetW;
     private int targetH;
     private boolean photoTaked = false;
+    private Item item;
 
 
     public static AddItemFragment newInstance() {
@@ -76,6 +82,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
         if(savedInstanceState != null) {
             mCurrentPhotoPath = savedInstanceState.getString("mCurrentPhotoPath");
             shops = savedInstanceState.getStringArray("shops");
+            shopwIds = savedInstanceState.getIntArray("shopwIds");
             targetW = savedInstanceState.getInt("targetW");
             targetH = savedInstanceState.getInt("targetH");
             photoTaked = savedInstanceState.getBoolean("photoTaked");
@@ -86,6 +93,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
     public void onSaveInstanceState(Bundle outState) {
         outState.putString("mCurrentPhotoPath", mCurrentPhotoPath);
         outState.putStringArray("shops", shops);
+        outState.putIntArray("shopwIds", shopwIds);
         outState.putInt("targetW", targetW);
         outState.putInt("targetH", targetH);
         outState.putBoolean("photoTaked", photoTaked);
@@ -124,6 +132,15 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
                 saveItem();
             }
         });
+
+        mainView.findViewById(R.id.btnAddShop).setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((NavigationDrawerFragment)getFragmentManager().
+                        findFragmentById(R.id.navigation_drawer)).selectItem(2);
+            }
+        });
+
         return mainView;
     }
 
@@ -133,9 +150,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
         if(googleServicesConnected() && shops == null) {
             mLocationClient.connect();
         }else if(shops != null) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                    android.R.layout.simple_dropdown_item_1line, shops);
-            shopAutoComplete.setAdapter(adapter);
+            initAutoCompleteAdapter();
         }
     }
 
@@ -143,24 +158,8 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
     public void onResume() {
         super.onResume();
         if(photoTaked) {
-            setPic();
+            ImageUtil.showImageInImgeView(imageView, mCurrentPhotoPath, targetW, targetH);
         }
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
     }
 
     public void takeThePicture() {
@@ -169,7 +168,8 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
         if (takePictureIntent.resolveActivity(this.getActivity().getPackageManager()) != null) {
             File photoFile = null;
             try {
-                photoFile = createImageFile();
+                photoFile = ImageUtil.createImageFile();
+                mCurrentPhotoPath = photoFile.getAbsolutePath();
             } catch (IOException ex) {
                 ex.printStackTrace(); // todo pokud neexistuje dana slozka tak ji vytvorit
             }
@@ -210,7 +210,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
             case REQUEST_IMAGE_CAPTURE:
                 if( resultCode == Activity.RESULT_OK){
                     photoTaked = true;
-                    setPic();
+                    ImageUtil.showImageInImgeView(imageView, mCurrentPhotoPath, targetW, targetH);
                 }
                 break;
             case CONNECTION_FAILURE_RESOLUTION_REQUEST :
@@ -221,42 +221,63 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
         }
     }
 
-    private void setPic() {
-
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        imageView.setImageBitmap(bitmap);
-    }
-
     private void saveItem() {
         if(validInputs()) {
-            Item item = BaseDbObject.newInstance(this.getActivity(), Item.class);
+            if(item == null) {
+                item = BaseDbObject.newInstance(this.getActivity(), Item.class);
+            }
             item.setTitle(title.getText().toString());
-            item.setShopId(shopAutoComplete.getListSelection());
+            item.setShopId(getShopId());
             item.setPrice( (int)(Float.valueOf(price.getText().toString())* 1000));
             item.setCurrency(0);
             item.setDescription(description.getText().toString());
-            item.setImageUri(AppPref.get(getActivity(), "mCurrentPhotoPath", ""));
+            item.setImageUri(mCurrentPhotoPath);
             item.save();
         }
     }
 
     private boolean validInputs() {
-        return true; // todo validace
+        boolean isValid = true;
+
+        if(this.title.getText().toString().isEmpty())
+        {
+            this.title.setError("Nazev musi byt vyplnen");
+            isValid = false;
+        }
+
+        if(this.price.getText().toString().isEmpty()) {
+            this.price.setError("Cena musi byt vyplnena");
+            isValid = false;
+        }
+
+        if(getShopId() == -1) {
+            this.shopAutoComplete.setError("Musi byt vybran jiz zadany obchod");
+            isValid = false;
+        }
+
+        if(this.mCurrentPhotoPath == null || this.mCurrentPhotoPath.isEmpty())
+        {
+            Toast.makeText(getActivity(), "Nebyla porizena fotka", Toast.LENGTH_LONG).show();
+            isValid = false;
+        }
+        return isValid;
+    }
+
+    private int getShopId() {
+        int id = -1;
+        String shop = this.shopAutoComplete.getText().toString();
+        if(shop != null && !shop.isEmpty()) {
+            boolean isCorrect = false;
+            int length = shops.length;
+            for(int i = 0; i < length; i++) {
+                isCorrect |= shop.contains(shops[i]);
+                if(isCorrect) {
+                    id = i;
+                    break;
+                }
+            }
+        }
+        return id;
     }
 
     @Override
@@ -337,7 +358,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
 
     private void initAutoCompleteAdapter() {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_dropdown_item_1line, shops);
+                R.layout.autocomplete_item, shops);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -353,9 +374,13 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
                 try {
                     JSONArray jsonShops = data.names();
                     int length = jsonShops.length();
+                    int shopId;
+                    shopwIds = new int[length];
                     shops = new String[length];
                     for(int i = 0; i < length; i++) {
-                        shops[i] = data.getString(jsonShops.getString(i));
+                        shopId = jsonShops.getInt(i);
+                        shopwIds[i] = shopId;
+                        shops[i] = data.getString(String.valueOf(shopId));
                     }
                     initAutoCompleteAdapter();
                 } catch (JSONException e) {

@@ -14,9 +14,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import klara.lookbook.R;
+import klara.lookbook.SynchronizeService;
 import klara.lookbook.fragments.AddItemFragment;
 import klara.lookbook.fragments.AddShopFragment;
 import klara.lookbook.fragments.NavigationDrawerFragment;
+import klara.lookbook.fragments.ViewItemFragment;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -43,6 +45,9 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        if(savedInstanceState == null) {
+            SynchronizeService.startActionSynchronize(this);
+        }
     }
 
     @Override
@@ -50,21 +55,26 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment;
+        String backStackName = "default";
         switch(position) {
             case 0:
-                fragment = PlaceholderFragment.newInstance(position + 1);
+                fragment = ViewItemFragment.newInstance();
+                backStackName = "viewItemFragment";
                 break;
             case 1:
                 fragment = AddItemFragment.newInstance();
+                backStackName = "AddItemFragment";
                 break;
             case 2:
                 fragment = AddShopFragment.newInstance();
+                backStackName = "AddShopFragment";
                 break;
             default:
                 fragment = PlaceholderFragment.newInstance(position + 1);
         }
         fragmentManager.beginTransaction()
                 .replace(R.id.container, fragment)
+                .addToBackStack(backStackName)
                 .commit();
     }
 
