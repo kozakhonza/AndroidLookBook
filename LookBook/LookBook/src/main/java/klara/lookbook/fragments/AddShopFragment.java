@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import klara.lookbook.R;
+import klara.lookbook.activities.MainActivity;
 import klara.lookbook.model.BaseDbObject;
 import klara.lookbook.model.Shop;
 import klara.lookbook.utils.ImageUtil;
@@ -58,9 +59,10 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
     private boolean photoTaked = false;
     private Shop shop;
 
-    public static AddShopFragment newInstance() {
+    public static AddShopFragment newInstance(int sectionNumber) {
         AddShopFragment fragment = new AddShopFragment();
         Bundle args = new Bundle();
+        args.putInt("sectionNumber", sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
@@ -112,6 +114,13 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
             }
         });
         return mainView;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt("sectionNumber"));
     }
 
     @Override

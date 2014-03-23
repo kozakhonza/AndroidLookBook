@@ -27,7 +27,6 @@ import klara.lookbook.model.ItemHome;
 import klara.lookbook.utils.UriUtil;
 
 public class HomeFragment extends BaseFragment {
-
     private HomeItemViewAdapter mAdapter;
     private View rootView;
 
@@ -81,7 +80,7 @@ public class HomeFragment extends BaseFragment {
     }
 
 
-    private class GetItemsTask extends BaseAsyncTask {
+    public class GetItemsTask extends BaseAsyncTask {
 
         @Override
         protected void onPostExecute(Object o) {

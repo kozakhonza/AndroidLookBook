@@ -1,13 +1,17 @@
 package klara.lookbook.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.R;
+import klara.lookbook.activities.MainActivity;
 import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.model.BaseDbObject;
 import klara.lookbook.model.Item;
@@ -68,9 +73,10 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
     private Item item;
 
 
-    public static AddItemFragment newInstance() {
+    public static AddItemFragment newInstance(int sectionNumber) {
         AddItemFragment fragment = new AddItemFragment();
         Bundle args = new Bundle();
+        args.putInt("sectionNumber", sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
@@ -133,25 +139,44 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
             }
         });
 
-        mainView.findViewById(R.id.btnAddShop).setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((NavigationDrawerFragment)getFragmentManager().
-                        findFragmentById(R.id.navigation_drawer)).selectItem(NavigationDrawerFragment.SECTION_ADD_SHOP);
-            }
-        });
-
         return mainView;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt("sectionNumber"));
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if(googleServicesConnected() && shops == null) {
+
+        if( isLocationServiceEnabled() && googleServicesConnected() && shops == null) {
             mLocationClient.connect();
         }else if(shops != null) {
             initAutoCompleteAdapter();
         }
+    }
+
+    private boolean isLocationServiceEnabled() {
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if( !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) &&
+                !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.add_item_frag_gps_not_avaible);  // GPS not found
+            builder.setMessage(R.string.add_item_frag_gps_not_avaible_text); // Want to enable?
+            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    AddItemFragment.this.startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                }
+            });
+            builder.setNegativeButton(R.string.no, null);
+            builder.create().show();
+            return false;
+        }
+        return true;
     }
 
     @Override

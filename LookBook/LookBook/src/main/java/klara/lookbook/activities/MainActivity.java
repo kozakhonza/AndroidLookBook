@@ -60,20 +60,20 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
         Fragment fragment = null;
         String backStackName = "default";
         switch(position) {
-            case 0:
+            case NavigationDrawerFragment.SECTION_HOME:
                 fragment = HomeFragment.newInstance(position);
                 backStackName = "homeFragment";
                 break;
-            case 1:
-                fragment = AddItemFragment.newInstance();
+            case NavigationDrawerFragment.SECTION_ADD_ITEM:
+                fragment = AddItemFragment.newInstance(position);
                 backStackName = "AddItemFragment";
                 break;
-            case 2:
-                fragment = ViewItemFragment.newInstance();
-                backStackName = "viewItemFragment";
+            case NavigationDrawerFragment.SECTION_ADD_SHOP:
+                fragment = AddShopFragment.newInstance(position);
+                backStackName = "AddShopFragment";
                 break;
             case 3:
-                fragment = AddShopFragment.newInstance();
+                fragment = AddShopFragment.newInstance(position);
                 backStackName = "AddShopFragment";
                 break;
             case 4:
@@ -85,7 +85,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 
         if(fragment != null) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.container, fragment)
+                    .replace(R.id.container, fragment, fragment.getClass().getName())
                     .addToBackStack(backStackName)
                     .commit();
         }
@@ -100,7 +100,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
                 mTitle = getString(R.string.add_item_frag_title);
                 break;
             case NavigationDrawerFragment.SECTION_ADD_SHOP:
-                mTitle = getString(R.string.title_section3);
+                mTitle = getString(R.string.add_shop_frag_title);
                 break;
         }
     }
@@ -131,6 +131,10 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
         }
         if(id == R.id.action_add_new_item) {
             mNavigationDrawerFragment.selectItem(NavigationDrawerFragment.SECTION_ADD_ITEM);
+            return true;
+        }
+        if(id == R.id.action_add_new_shop) {
+            mNavigationDrawerFragment.selectItem(NavigationDrawerFragment.SECTION_ADD_SHOP);
             return true;
         }
         return super.onOptionsItemSelected(item);

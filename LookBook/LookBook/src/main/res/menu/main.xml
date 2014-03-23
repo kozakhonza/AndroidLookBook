@@ -6,6 +6,10 @@
         android:title="@string/add_item_frag_title"
         android:icon="@drawable/ic_action_camera"
         app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_add_new_shop"
+        android:title="@string/add_shop_frag_title"
+        android:icon="@drawable/ic_action_new"
+        app:showAsAction="ifRoom" />
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

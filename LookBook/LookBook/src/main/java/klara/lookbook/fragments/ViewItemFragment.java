@@ -1,5 +1,6 @@
 package klara.lookbook.fragments;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.R;
+import klara.lookbook.activities.MainActivity;
 import klara.lookbook.adapters.ItemViewAdapter;
 import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.model.Item;
@@ -29,8 +31,12 @@ public class ViewItemFragment extends BaseFragment implements AbsListView.OnItem
     private GridView mListView;
     private ItemViewAdapter mAdapter;
 
-    public static ViewItemFragment newInstance() {
-        return new ViewItemFragment();
+    public static ViewItemFragment newInstance(int sectionNumber) {
+        ViewItemFragment fragment = new ViewItemFragment();
+        Bundle args = new Bundle();
+        args.putInt("sectionNumber", sectionNumber);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -48,6 +54,13 @@ public class ViewItemFragment extends BaseFragment implements AbsListView.OnItem
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt("sectionNumber"));
     }
 
     @Override

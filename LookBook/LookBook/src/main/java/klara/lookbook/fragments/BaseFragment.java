@@ -15,8 +15,6 @@ import klara.lookbook.dialogs.BaseDialog;
 public abstract class BaseFragment extends Fragment implements BaseDialog.IDialogHandler,
         IAsyncTaskHandler{
 
-    public String TAG = "klara.lookbook.fragments.BaseFragment";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,9 +61,8 @@ public abstract class BaseFragment extends Fragment implements BaseDialog.IDialo
         return getFragmentManager();
     }
 
-    @Override
     public String myGetTag() {
-        return TAG;
+        return this.getClass().getName();
     }
 
     @Override
