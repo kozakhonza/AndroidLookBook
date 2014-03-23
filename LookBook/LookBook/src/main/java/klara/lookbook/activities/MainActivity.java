@@ -1,6 +1,7 @@
 package klara.lookbook.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,6 +20,7 @@ import klara.lookbook.fragments.AddItemFragment;
 import klara.lookbook.fragments.AddShopFragment;
 import klara.lookbook.fragments.NavigationDrawerFragment;
 import klara.lookbook.fragments.ViewItemFragment;
+import klara.lookbook.utils.AppPref;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -54,7 +56,7 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment fragment;
+        Fragment fragment = null;
         String backStackName = "default";
         switch(position) {
             case 0:
@@ -69,13 +71,21 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
                 fragment = AddShopFragment.newInstance();
                 backStackName = "AddShopFragment";
                 break;
+            case 3:
+                AppPref.put(this, AppPref.KEY_PASSWORD, "");
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
+                break;
             default:
                 fragment = PlaceholderFragment.newInstance(position + 1);
         }
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, fragment)
-                .addToBackStack(backStackName)
-                .commit();
+
+        if(fragment != null) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, fragment)
+                    .addToBackStack(backStackName)
+                    .commit();
+        }
     }
 
     public void onSectionAttached(int number) {

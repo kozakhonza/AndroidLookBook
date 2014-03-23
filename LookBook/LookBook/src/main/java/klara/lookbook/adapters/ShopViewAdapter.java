@@ -13,31 +13,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import klara.lookbook.R;
-import klara.lookbook.model.Item;
+import klara.lookbook.model.Shop;
 import klara.lookbook.utils.Formater;
 import klara.lookbook.utils.ImageUtil;
 
-public class ItemViewAdapter extends BaseAdapter {
+public class ShopViewAdapter extends BaseAdapter {
 
-    protected List<Item> items = new ArrayList<Item>();
+    protected List<Shop> shops = new ArrayList<Shop>();
     protected LayoutInflater inflater;
 
-    public ItemViewAdapter(Context context) {
+    public ShopViewAdapter(Context context) {
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void setItems(List<Item> items) {
-        this.items = items;
+    public void setShops(List<Shop> shops) {
+        this.shops = shops;
     }
 
     @Override
     public int getCount() {
-        return items.size();
+        return shops.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return items.get(i);
+        return shops.get(i);
     }
 
     @Override
@@ -47,29 +47,32 @@ public class ItemViewAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        ItemHolder holder;
-        Item item = (Item)getItem(i);
+        ShopHolder holder;
+        Shop shop = (Shop)getItem(i);
 
         if(view == null || view.getTag() == null) {
             view = inflater.inflate(R.layout.component_item, viewGroup, false);
-            holder = new ItemHolder();
-            holder.image = (ImageView) view.findViewById(R.id.imageViewItem);
-            holder.price = (TextView) view.findViewById(R.id.textViewPrice);
+            holder = new ShopHolder();
+            holder.image = (ImageView) view.findViewById(R.id.imageView);
+            holder.name = (TextView) view.findViewById(R.id.textViewName);
+            holder.addresse = (TextView) view.findViewById(R.id.textViewAddresse);
             view.setTag(holder);
         }else {
-            holder = (ItemHolder)view.getTag();
+            holder = (ShopHolder)view.getTag();
         }
 
-        ImageUtil.showImageInImgeView(holder.image, item.getImageUri(),
+        ImageUtil.showImageInImgeView(holder.image, shop.getImageUri(),
                 Formater.dpToPx(150, inflater.getContext()), Formater.dpToPx(200, inflater.getContext()));
 
-        holder.image.setImageBitmap(BitmapFactory.decodeFile(item.getImageUri()));
-        holder.price.setText(item.getPrice() + " Kč");
+        holder.image.setImageBitmap(BitmapFactory.decodeFile(shop.getImageUri()));
+        holder.name.setText(shop.getTitle());
+        holder.addresse.setText(shop.getCity() + " "+ shop.getCity());
         return view;
     }
 
-    protected static class ItemHolder {
+    protected static class ShopHolder {
         public ImageView image;
-        public TextView price;
+        public TextView name;
+        public TextView addresse;
     }
 }

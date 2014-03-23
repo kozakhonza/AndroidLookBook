@@ -18,7 +18,7 @@
         <activity
             android:name="klara.lookbook.activities.LoginActivity"
             android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:windowSoftInputMode="adjustResize|adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,6 +38,11 @@
             android:name="klara.lookbook.SynchronizeService"
             android:exported="false" >
         </service>
+
+        <activity
+            android:name="klara.lookbook.activities.RegisterActivity"
+            android:label="@string/title_activity_register" >
+        </activity>
     </application>
 
 </manifest>

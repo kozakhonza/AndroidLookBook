@@ -29,7 +29,7 @@ public class Item extends BaseDbObject {
         public static final String COLUMN_IMAGE = "file_image";
     }
 
-    private static final String SQL_CREATE_ENTRIES =
+    protected static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + ItemColumns.TABLE_NAME + " (" +
                     ItemColumns._ID + " INTEGER PRIMARY KEY," +
                     ItemColumns.COLUMN_ITEM_ID + " INTEGER," +
@@ -41,19 +41,19 @@ public class Item extends BaseDbObject {
                     ItemColumns.COLUMN_IMAGE + " VARCHAR(30)" +
             " );";
 
-    private String[] colums = new String[] {
+    protected String[] colums = new String[] {
             ItemColumns.COLUMN_ITEM_ID, ItemColumns.COLUMN_TITLE, ItemColumns.COLUMN_SHOP_ID,
             ItemColumns.COLUMN_PRICE, ItemColumns.COLUMN_CURRENCY, ItemColumns.COLUMN_DESCRIPTION,
             ItemColumns.COLUMN_IMAGE
     };
 
-    private int id;
-    private String title;
-    private int shopId;
-    private int price;
-    private int currency;
-    private String description;
-    private String imageUri;
+    protected int id;
+    protected String title;
+    protected int shopId;
+    protected int price;
+    protected int currency;
+    protected String description;
+    protected String imageUri;
 
     @Override
     public String getCreateTableString() {

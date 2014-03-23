@@ -72,6 +72,14 @@ public class LoginActivity extends BaseActivity {
         if(!mPassword.equals("") && !mEmail.equals("")) {
             attemptLogin();
         }
+
+        findViewById(R.id.register_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
 

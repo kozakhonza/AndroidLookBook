@@ -34,17 +34,23 @@ public class UriUtil {
 //    public static final String URL_SERVER = "http://klarka-itnerds.rhcloud.com";
 
     public static final String URL_LOGIN = "/users/loginMb";
-    public static final String URL_GET_NEAREST_SHOP = "/shops/nearestShopsMb";
-    public static final String URL_SAVE_ITEM = "/items/saveItemMb";
-    public static final String URL_SAVE_SHOP = "/shops/saveShopMb";
-    public static final String URL_VIEW_ITEMS = "/items/viewItemsMb";
+    public static final String URL_REGISTER = "/users/addMb";
+    public static final String URL_GET_NEAREST_SHOP = "/shops/nearestMb";
+    public static final String URL_SAVE_ITEM = "/items/saveMb";
+    public static final String URL_SAVE_SHOP = "/shops/saveMb";
+    public static final String URL_VIEW_ITEMS = "/items/viewMb";
+    public static final String URL_VIEW_SHOPS = "/items/viewMb";
+    public static final String URL_VIEW_LEADERS_ITEMS = "/users/viewLeadersItemsMb";
+    public static final String URL_FAVORITE_ADD = "/favoritLists/addMb";
 
     public static final String PARAM_IS_MOBILE_REQUEST = "an_is_mobile";
     public static final String PARAM_EMAIL = "username";
     public static final String PARAM_PASSWORD = "password";
+    public static final String PARAM_NICK = "nick";
     public static final String PARAM_LAT = "lat";
     public static final String PARAM_LNG = "lng";
     public static final String PARAM_ACCURACY = "accuracy";
+    public static final String PARAM_ITEM_ID = "item_id";
 
     public static final String VALUE_OK = "1";
     public static final String VALUE_FAIL = "0";

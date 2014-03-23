@@ -2,62 +2,37 @@ package klara.lookbook.adapters;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import klara.lookbook.R;
 import klara.lookbook.model.Item;
+import klara.lookbook.model.ItemHome;
 import klara.lookbook.utils.Formater;
 import klara.lookbook.utils.ImageUtil;
 
-public class ItemViewAdapter extends BaseAdapter {
+public class HomeItemViewAdapter extends ItemViewAdapter{
 
-    protected List<Item> items = new ArrayList<Item>();
-    protected LayoutInflater inflater;
-
-    public ItemViewAdapter(Context context) {
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    public void setItems(List<Item> items) {
-        this.items = items;
-    }
-
-    @Override
-    public int getCount() {
-        return items.size();
-    }
-
-    @Override
-    public Object getItem(int i) {
-        return items.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return i;
+    public HomeItemViewAdapter(Context context) {
+        super(context);
     }
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        ItemHolder holder;
-        Item item = (Item)getItem(i);
+        ItemHomeHolder holder;
+        ItemHome item = (ItemHome) getItem(i);
 
         if(view == null || view.getTag() == null) {
-            view = inflater.inflate(R.layout.component_item, viewGroup, false);
-            holder = new ItemHolder();
+            view = inflater.inflate(R.layout.component_home_item, viewGroup, false);
+            holder = new ItemHomeHolder();
             holder.image = (ImageView) view.findViewById(R.id.imageViewItem);
             holder.price = (TextView) view.findViewById(R.id.textViewPrice);
+            holder.header = (TextView) view.findViewById(R.id.textViewHeader);
             view.setTag(holder);
         }else {
-            holder = (ItemHolder)view.getTag();
+            holder = (ItemHomeHolder)view.getTag();
         }
 
         ImageUtil.showImageInImgeView(holder.image, item.getImageUri(),
@@ -65,11 +40,11 @@ public class ItemViewAdapter extends BaseAdapter {
 
         holder.image.setImageBitmap(BitmapFactory.decodeFile(item.getImageUri()));
         holder.price.setText(item.getPrice() + " Kč");
+        holder.header.setText(item.getUserTitle());
         return view;
     }
 
-    protected static class ItemHolder {
-        public ImageView image;
-        public TextView price;
+    protected static class ItemHomeHolder extends ItemHolder{
+        public TextView header;
     }
 }

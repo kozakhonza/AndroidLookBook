@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView"
+    android:background="@drawable/lookbook_background">
+
+     <LinearLayout
+         style="@style/LoginFormContainer"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:orientation="vertical">
+
+         <EditText
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:inputType="textPersonName"
+             android:hint="@string/hint_nick"
+             android:ems="10"
+             android:id="@+id/editTextNick" />
+
+         <EditText
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:inputType="textEmailAddress"
+             android:hint="@string/hint_email"
+             android:ems="10"
+             android:id="@+id/editTextEmail" />
+
+         <EditText
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:inputType="textPassword"
+             android:hint="@string/hint_password"
+             android:ems="10"
+             android:id="@+id/editTextPassword" />
+
+         <EditText
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:inputType="textPassword"
+             android:ems="10"
+             android:hint="@string/hint_password_control"
+             android:id="@+id/editTextPasswordControl" />
+
+         <RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+
+             <Button android:id="@+id/btn_cancel"
+                 android:layout_width="140dp"
+                 android:layout_height="wrap_content"
+                 android:text="@string/action_cancel"
+                 android:paddingLeft="32dp"
+                 android:paddingRight="32dp"
+                 android:layout_marginTop="16dp"
+                 android:layout_gravity="right"
+                 android:textColor="#eeeeee" />
+
+
+             <Button android:id="@+id/btn_sign_in"
+                 android:layout_width="140dp"
+                 android:layout_height="wrap_content"
+                 android:text="@string/action_sign_in"
+                 android:paddingLeft="32dp"
+                 android:paddingRight="32dp"
+                 android:layout_gravity="right"
+                 android:layout_alignParentBottom="true"
+                 android:layout_alignParentRight="true"
+                 android:layout_alignParentEnd="true"
+                 android:textColor="#eeeeee" />
+         </RelativeLayout>
+
+     </LinearLayout>
+
+</ScrollView>
