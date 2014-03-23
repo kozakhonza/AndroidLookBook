@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <inset android:insetTop="4dp"
+            android:insetBottom="4dp"
+            android:insetLeft="3dp"
+            android:insetRight="3dp"
+            android:drawable="@drawable/inset_button"/>
+    </item>
+</selector>

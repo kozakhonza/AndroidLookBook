@@ -1,13 +1,12 @@
 package klara.lookbook.activities;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import klara.lookbook.R;
 
-public class RegisterActivity extends ActionBarActivity {
+public class RegisterActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

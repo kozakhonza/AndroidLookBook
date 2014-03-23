@@ -137,7 +137,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
             @Override
             public void onClick(View view) {
                 ((NavigationDrawerFragment)getFragmentManager().
-                        findFragmentById(R.id.navigation_drawer)).selectItem(2);
+                        findFragmentById(R.id.navigation_drawer)).selectItem(NavigationDrawerFragment.SECTION_ADD_SHOP);
             }
         });
 

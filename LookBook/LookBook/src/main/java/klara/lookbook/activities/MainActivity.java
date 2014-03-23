@@ -18,6 +18,7 @@ import klara.lookbook.R;
 import klara.lookbook.SynchronizeService;
 import klara.lookbook.fragments.AddItemFragment;
 import klara.lookbook.fragments.AddShopFragment;
+import klara.lookbook.fragments.HomeFragment;
 import klara.lookbook.fragments.NavigationDrawerFragment;
 import klara.lookbook.fragments.ViewItemFragment;
 import klara.lookbook.utils.AppPref;
@@ -60,24 +61,26 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
         String backStackName = "default";
         switch(position) {
             case 0:
-                fragment = ViewItemFragment.newInstance();
-                backStackName = "viewItemFragment";
+                fragment = HomeFragment.newInstance(position);
+                backStackName = "homeFragment";
                 break;
             case 1:
                 fragment = AddItemFragment.newInstance();
                 backStackName = "AddItemFragment";
                 break;
             case 2:
+                fragment = ViewItemFragment.newInstance();
+                backStackName = "viewItemFragment";
+                break;
+            case 3:
                 fragment = AddShopFragment.newInstance();
                 backStackName = "AddShopFragment";
                 break;
-            case 3:
+            case 4:
                 AppPref.put(this, AppPref.KEY_PASSWORD, "");
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
                 break;
-            default:
-                fragment = PlaceholderFragment.newInstance(position + 1);
         }
 
         if(fragment != null) {
@@ -90,13 +93,13 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 
     public void onSectionAttached(int number) {
         switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
+            case NavigationDrawerFragment.SECTION_HOME:
+                mTitle = getString(R.string.home_frag_title);
                 break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
+            case NavigationDrawerFragment.SECTION_ADD_ITEM:
+                mTitle = getString(R.string.add_item_frag_title);
                 break;
-            case 3:
+            case NavigationDrawerFragment.SECTION_ADD_SHOP:
                 mTitle = getString(R.string.title_section3);
                 break;
         }
@@ -113,9 +116,6 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.main, menu);
             restoreActionBar();
             return true;
@@ -125,56 +125,14 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
         }
+        if(id == R.id.action_add_new_item) {
+            mNavigationDrawerFragment.selectItem(NavigationDrawerFragment.SECTION_ADD_ITEM);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
-    }
-
 }

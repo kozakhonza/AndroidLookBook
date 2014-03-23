@@ -1,11 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="klara.lookbook.activities.MainActivity" >
-    <item android:id="@+id/action_add_new_item"
-        android:title="@string/add_item_frag_title"
-        android:icon="@drawable/ic_action_camera"
-        app:showAsAction="ifRoom" />
+    tools:context="klara.lookbook.activities.AutoLoginActivity" >
+    
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

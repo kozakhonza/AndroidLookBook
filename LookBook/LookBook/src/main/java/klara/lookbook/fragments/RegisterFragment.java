@@ -1,12 +1,14 @@
 package klara.lookbook.fragments;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -17,16 +19,18 @@ import java.util.List;
 
 import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.R;
+import klara.lookbook.activities.AutoLoginActivity;
 import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.model.Item;
+import klara.lookbook.utils.AppPref;
 import klara.lookbook.utils.UriUtil;
 
 public class RegisterFragment extends BaseFragment {
 
-    private TextView nickView;
-    private TextView emailView;
-    private TextView passwordView;
-    private TextView passwordControlView;
+    private EditText nickView;
+    private EditText emailView;
+    private EditText passwordView;
+    private EditText passwordControlView;
 
     private String nick;
     private String email;
@@ -49,10 +53,10 @@ public class RegisterFragment extends BaseFragment {
             }
         });
 
-        nickView = (TextView) rootView.findViewById(R.id.editTextNick);
-        emailView = (TextView) rootView.findViewById(R.id.editTextEmail);
-        passwordView = (TextView) rootView.findViewById(R.id.editTextPassword);
-        passwordControlView = (TextView) rootView.findViewById(R.id.editTextPasswordControl);
+        nickView = (EditText) rootView.findViewById(R.id.editTextNick);
+        emailView = (EditText) rootView.findViewById(R.id.editTextEmail);
+        passwordView = (EditText) rootView.findViewById(R.id.editTextPassword);
+        passwordControlView = (EditText) rootView.findViewById(R.id.editTextPasswordControl);
 
         return rootView;
     }
@@ -78,7 +82,7 @@ public class RegisterFragment extends BaseFragment {
             passwordView.setError(getString(R.string.error_invalid_password));
             isValid = false;
         } else if(!password.equals(passwordControl)) {
-            passwordView.setError(getString(R.string.error_invalid_password));
+            passwordControlView.setError(getString(R.string.error_password_not_match));
             isValid = false;
         }
 
@@ -105,14 +109,13 @@ public class RegisterFragment extends BaseFragment {
         values.put(UriUtil.PARAM_NICK, nick);
         values.put(UriUtil.PARAM_EMAIL, email);
         values.put(UriUtil.PARAM_PASSWORD, password);
-        return null;
+        return values;
     }
 
     private void register() {
         if(validateError()) {
             RegisterTask task = new RegisterTask();
-            ContentValues values = new ContentValues();
-            task.init(this, UriUtil.URL_REGISTER, values, true);
+            task.init(this, UriUtil.URL_REGISTER, getValues(), true);
             task.execute();
         }
     }
@@ -122,6 +125,18 @@ public class RegisterFragment extends BaseFragment {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
+            try {
+                if(data.getString("succes").equals(UriUtil.VALUE_OK)) {
+                    AppPref.put(getActivity(), AppPref.KEY_EMAIL, email);
+                    AppPref.put(getActivity(), AppPref.KEY_PASSWORD, password);
+                    startActivity(new Intent(getActivity(), AutoLoginActivity.class));
+                    getActivity().finish();
+                }else {
+                    emailView.setError(getString(R.string.error_email_exists));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override

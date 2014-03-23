@@ -33,7 +33,6 @@ public class LoginActivity extends BaseActivity {
     // UI references.
     private EditText mEmailView;
     private EditText mPasswordView;
-    private TextView mLoginStatusMessageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +59,6 @@ public class LoginActivity extends BaseActivity {
         });
 
         mPasswordView.setText(mPassword);
-        mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,10 +66,6 @@ public class LoginActivity extends BaseActivity {
                 attemptLogin();
             }
         });
-
-        if(!mPassword.equals("") && !mEmail.equals("")) {
-            attemptLogin();
-        }
 
         findViewById(R.id.register_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,9 +125,6 @@ public class LoginActivity extends BaseActivity {
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 
             AppPref.put(this, AppPref.KEY_EMAIL, mEmail);
             AppPref.put(this, AppPref.KEY_PASSWORD, mPassword);

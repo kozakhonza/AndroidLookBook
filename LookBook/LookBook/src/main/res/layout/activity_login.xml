@@ -2,34 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="klara.lookbook.activities.LoginActivity">
 
-    <!-- Login progress -->
-    <LinearLayout android:id="@+id/login_status"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
-        <ProgressBar style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"/>
-        <TextView
-            android:id="@+id/login_status_message"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:fontFamily="sans-serif-light"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="@string/login_progress_signing_in" />
-    </LinearLayout>
-
     <!-- Login form -->
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/lookbook_background">
+        android:background="@drawable/lookbook_background"
+        android:fillViewport="false">
 
         <LinearLayout style="@style/LoginFormContainer"
             android:orientation="vertical"
@@ -43,7 +22,8 @@
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
                 android:hint="@string/prompt_email"
-                android:textColor="#eeeeee" />
+                android:textColor="#000000"
+                android:background="@drawable/edit_text_background" />
 
             <EditText
                 android:id="@+id/password"
@@ -56,7 +36,9 @@
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeActionId="@+id/login"
                 android:imeOptions="actionUnspecified"
-                android:textColor="#eeeeee" />
+                android:background="@drawable/edit_text_background"
+                android:textColor="#000000"
+                />
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -67,9 +49,10 @@
                     android:text="@string/action_register"
                     android:paddingLeft="32dp"
                     android:paddingRight="32dp"
-                    android:layout_marginTop="16dp"
                     android:layout_gravity="right"
-                    android:textColor="#eeeeee" />
+                    android:textColor="#eeeeee"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/button_background" />
 
 
                 <Button android:id="@+id/sign_in_button"
@@ -82,7 +65,9 @@
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
-                    android:textColor="#eeeeee" />
+                    android:textColor="#eeeeee"
+                    android:background="@drawable/button_background"
+                    android:layout_marginTop="14dp" />
             </RelativeLayout>
 
         </LinearLayout>

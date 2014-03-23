@@ -1,11 +1,14 @@
 package klara.lookbook.fragments;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,31 +18,46 @@ import java.util.List;
 
 import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.R;
+import klara.lookbook.activities.MainActivity;
+import klara.lookbook.adapters.HomeItemViewAdapter;
 import klara.lookbook.adapters.ItemViewAdapter;
 import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.model.Item;
+import klara.lookbook.model.ItemHome;
 import klara.lookbook.utils.UriUtil;
 
 public class HomeFragment extends BaseFragment {
 
-    private GridView gridView;
-    private ItemViewAdapter mAdapter;
+    private HomeItemViewAdapter mAdapter;
+    private View rootView;
 
-    public static ViewItemFragment newInstance() {
-        return new ViewItemFragment();
+    public static HomeFragment newInstance(int sectionNumber) {
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putInt("sectionNumber", sectionNumber);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter = new ItemViewAdapter(getActivity());
+        mAdapter = new HomeItemViewAdapter(getActivity());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
-        gridView = (GridView) rootView.findViewById(R.id.grid);
+        rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        GridView grid = (GridView) rootView.findViewById(R.id.grid);
+        grid.setAdapter(mAdapter);
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt("sectionNumber"));
     }
 
     @Override
@@ -48,10 +66,20 @@ public class HomeFragment extends BaseFragment {
         if(mAdapter.getCount() == 0) {
             GetItemsTask task = new GetItemsTask();
             ContentValues values = new ContentValues();
-            task.init(this, UriUtil.URL_VIEW_ITEMS, values, true);
+            task.init(this, UriUtil.URL_VIEW_LEADERS_ITEMS, values, true);
             task.execute();
         }
     }
+
+    public void setEmptyText(CharSequence emptyText) {
+        View emptyView = rootView.findViewById(R.id.empty);
+
+        if (emptyView instanceof TextView) {
+            ((TextView) emptyView).setText(emptyText);
+            emptyView.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     private class GetItemsTask extends BaseAsyncTask {
 
@@ -78,12 +106,16 @@ public class HomeFragment extends BaseFragment {
             if(data != null) {
                 try {
                     JSONArray jsonItems = data.getJSONArray("items");
-                    Item item;
+                    ItemHome item;
                     int length = jsonItems.length();
-                    for(int i = 0; i < length; i++) {
-                        item = Item.parseFromJsonObject(getActivity(),
-                                Item.class, jsonItems.getJSONObject(i));
-                        items.add(item);
+                    if(length == 0) {
+                        setEmptyText(getString(R.string.home_frag_empty));
+                    }else {
+                        for(int i = 0; i < length; i++) {
+                            item = ItemHome.parseFromJsonObject(getActivity(),
+                                    ItemHome.class, jsonItems.getJSONObject(i));
+                            items.add(item);
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
