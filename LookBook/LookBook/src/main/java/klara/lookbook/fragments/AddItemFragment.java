@@ -8,13 +8,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -34,15 +31,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.R;
 import klara.lookbook.activities.MainActivity;
 import klara.lookbook.dialogs.BaseDialog;
+import klara.lookbook.dialogs.ProgressDialog;
 import klara.lookbook.model.BaseDbObject;
 import klara.lookbook.model.Item;
-import klara.lookbook.utils.AppPref;
 import klara.lookbook.utils.ImageUtil;
 import klara.lookbook.utils.UriUtil;
 
@@ -154,6 +149,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
         super.onStart();
 
         if( isLocationServiceEnabled() && googleServicesConnected() && shops == null) {
+            ProgressDialog.newInstance().show(getFragmentManager(), "ProgressDialog");
             mLocationClient.connect();
         }else if(shops != null) {
             initAutoCompleteAdapter();
@@ -165,8 +161,8 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
         if( !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) &&
                 !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.add_item_frag_gps_not_avaible);  // GPS not found
-            builder.setMessage(R.string.add_item_frag_gps_not_avaible_text); // Want to enable?
+            builder.setTitle(R.string.add_item_frag_gps_not_avaible);
+            builder.setMessage(R.string.add_item_frag_gps_not_avaible_text);
             builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     AddItemFragment.this.startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -196,7 +192,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
                 photoFile = ImageUtil.createImageFile();
                 mCurrentPhotoPath = photoFile.getAbsolutePath();
             } catch (IOException ex) {
-                ex.printStackTrace(); // todo pokud neexistuje dana slozka tak ji vytvorit
+                ex.printStackTrace();
             }
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
@@ -212,7 +208,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
             return true;
         } else {
             Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                    resultCode, // todo tady tim si nejsem jisty
+                    resultCode,
                     getActivity(),
                     CONNECTION_FAILURE_RESOLUTION_REQUEST);
             if (errorDialog != null) {
@@ -221,8 +217,6 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
                 errorFragment.setDialog(errorDialog);
                 errorFragment.show(getFragmentManager(),
                         "Location Updates");
-            }else {
-                // todo ukazat dialog ze google play service neni dostupna
             }
         }
         return false;
@@ -258,6 +252,7 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
             item.setDescription(description.getText().toString());
             item.setImageUri(mCurrentPhotoPath);
             item.save();
+            Toast.makeText(getActivity(), getString(R.string.add_item_frag_item_hasbeen_saved), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -266,23 +261,23 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
 
         if(this.title.getText().toString().isEmpty())
         {
-            this.title.setError("Nazev musi byt vyplnen");
+            this.title.setError(getString(R.string.error_field_required));
             isValid = false;
         }
 
         if(this.price.getText().toString().isEmpty()) {
-            this.price.setError("Cena musi byt vyplnena");
+            this.price.setError(getString(R.string.error_field_required));
             isValid = false;
         }
 
         if(getShopId() == -1) {
-            this.shopAutoComplete.setError("Musi byt vybran jiz zadany obchod");
+            this.shopAutoComplete.setError(getString(R.string.error_shop_doesnt_exists));
             isValid = false;
         }
 
         if(this.mCurrentPhotoPath == null || this.mCurrentPhotoPath.isEmpty())
         {
-            Toast.makeText(getActivity(), "Nebyla porizena fotka", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.error_photo_required), Toast.LENGTH_LONG).show();
             isValid = false;
         }
         return isValid;
@@ -307,7 +302,6 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
 
     @Override
     public void onStop() {
-        // Disconnecting the client invalidates it.
         mLocationClient.disconnect();
         super.onStop();
     }
@@ -316,23 +310,28 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
     public void onConnected(Bundle bundle) {
         Location location = mLocationClient.getLastLocation();
         if(location != null) {
-            float diameter = location.getAccuracy() * 2;
-            if(diameter < 300.0) {
-                diameter = 300;
-            }
-            ContentValues values = new ContentValues();
-            values.put(UriUtil.PARAM_LAT, String.valueOf(location.getLatitude()));
-            values.put(UriUtil.PARAM_LNG, String.valueOf(location.getLongitude()));
-            values.put(UriUtil.PARAM_ACCURACY, String.valueOf(diameter));
-
-            GetNearestShopTask task = new GetNearestShopTask();
-            task.init(this, UriUtil.URL_GET_NEAREST_SHOP, values, true);
-            task.execute();
+           getNearestShop();
         }else if(reconnectCounter < 3){
             reconnectLocation();
         }else {
-            //todo - ukazat hlasku ze se nepovedlo zjiskat soucasnou polohu ...
+            //todo - ukazat hlasku ze se nepovedlo zjiskat soucasnou polohu, pridat moznost vybrat z mapy
         }
+    }
+
+    private void getNearestShop() {
+        Location location = mLocationClient.getLastLocation();
+        float diameter = location.getAccuracy() * 2;
+        if(diameter < 300.0) {
+            diameter = 300;
+        }
+        ContentValues values = new ContentValues();
+        values.put(UriUtil.PARAM_LAT, String.valueOf(location.getLatitude()));
+        values.put(UriUtil.PARAM_LNG, String.valueOf(location.getLongitude()));
+        values.put(UriUtil.PARAM_ACCURACY, String.valueOf(diameter));
+
+        GetNearestShopTask task = new GetNearestShopTask();
+        task.init(this, UriUtil.URL_GET_NEAREST_SHOP, values, false);
+        task.execute();
     }
 
     @Override
@@ -350,10 +349,8 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
             } catch (IntentSender.SendIntentException e) {
                 e.printStackTrace();
             }
-        } else {
-//            showErrorDialog(connectionResult.getErrorCode()); todo
         }
-
+        myDismissDialog("ProgressDialog");
     }
 
     private void reconnectLocation() {
@@ -412,14 +409,19 @@ public class AddItemFragment extends BaseFragment implements GooglePlayServicesC
                     e.printStackTrace();
                 }
             }
+            myDismissDialog("ProgressDialog");
         }
 
         @Override
         public void onTryAgainOk(BaseDialog dialog) {
+            dialog.dismiss();
+            getNearestShop();
         }
 
         @Override
         public void onTryAgainCancel(BaseDialog dialog) {
+            dialog.dismiss();
+            myDismissDialog("ProgressDialog");
         }
     }
 }

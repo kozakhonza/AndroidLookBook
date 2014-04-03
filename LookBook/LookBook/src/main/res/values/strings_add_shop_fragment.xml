@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="add_shop_frag_title">Add shop</string>
+    <string name="add_shop_frag_hint_shop_name">Shop name - required</string>
+    <string name="add_shop_frag_hint_city">City - required</string>
+    <string name="add_shop_frag_hint_shopping_center">Shopping center</string>
+    <string name="add_shop_frag_hint_street">Street</string>
+    <string name="add_shop_frag_shop_hasbeen_saved">Shop has been successfully saved</string>
 </resources>

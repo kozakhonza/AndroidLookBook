@@ -56,6 +56,13 @@ public abstract class BaseFragment extends Fragment implements BaseDialog.IDialo
         }
     }
 
+    protected void myDismissDialog(String dialogTag) {
+        BaseDialog dialog = (BaseDialog)getFragmentManager().findFragmentByTag(dialogTag);
+        if(dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
     @Override
     public FragmentManager myGetFragmentManager() {
         return getFragmentManager();

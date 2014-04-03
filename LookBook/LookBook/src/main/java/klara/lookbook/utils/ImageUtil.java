@@ -14,7 +14,7 @@ import java.util.Date;
 
 public class ImageUtil {
 
-    public static String saveBase64ImgToFile(String base64) {
+    public static String saveBase64ImgToFile(String base64) { // todo poresit aby se temp file i mazaly
         File file = null;
         try {
             file = ImageUtil.createImageFile();

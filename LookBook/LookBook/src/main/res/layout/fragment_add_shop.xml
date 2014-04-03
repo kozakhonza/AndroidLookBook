@@ -2,11 +2,12 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#cdcdcd">
+    android:background="#cdcdcd"
+    android:padding="8dp">
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             >
 
@@ -16,9 +17,7 @@
             android:id="@+id/imageView"
             android:layout_gravity="right|top"
             android:background="#cdcdcd"
-            android:layout_alignParentLeft="true"
             android:layout_marginLeft="0dp"
-            android:layout_alignParentTop="true"
             android:clickable="true"
             android:layout_marginTop="0dp"
             android:minHeight="40dp"
@@ -33,9 +32,6 @@
             android:layout_height="0dp"
             android:layout_gravity="center_horizontal|bottom"
             android:gravity="top"
-            android:layout_below="@+id/imageView"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
             android:layout_weight="3"
             android:paddingLeft="8dp"
             android:paddingRight="12dp"
@@ -47,43 +43,16 @@
                 android:layout_height="fill_parent"
                 android:gravity="center_horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Nazev"
-                    android:id="@+id/textViewShop"
-                    android:gravity="center_horizontal" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center_horizontal">
-
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/editTextTitle"
-                    android:hint="New Yorker"
+                    android:hint="@string/add_shop_frag_hint_shop_name"
                     android:layout_column="0"
                     android:textColor="#000000"
-                    android:inputType="text" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Mesto"
-                    android:id="@+id/textViewCity"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_horizontal" />
+                    android:inputType="text"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="0.8" />
             </TableRow>
 
             <TableRow
@@ -95,25 +64,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/editTextCity"
-                    android:hint="Brno, Praha"
+                    android:hint="@string/add_shop_frag_hint_city"
                     android:layout_column="0"
                     android:textColor="#000000"
+                    android:layout_weight="0.8"
                     android:maxWidth="120dp" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Nakupni stredisko"
-                    android:id="@+id/textViewCity"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_horizontal" />
             </TableRow>
 
             <TableRow
@@ -125,26 +80,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/editTextShopingCenter"
-                    android:hint="Vankovka, Avion"
+                    android:hint="@string/add_shop_frag_hint_shopping_center"
                     android:layout_column="0"
                     android:textColor="#000000"
+                    android:layout_weight="0.8"
                     android:maxWidth="120dp" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Ulice"
-                    android:id="@+id/textViewPrice"
-                    android:layout_column="0"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="4dp" />
             </TableRow>
 
             <TableRow
@@ -157,17 +97,18 @@
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     android:ems="10"
-                    android:hint="Boskovická..."
+                    android:hint="@string/add_shop_frag_hint_street"
                     android:id="@+id/editTextStreet"
+                    android:layout_weight="0.8"
                     android:layout_column="0" />
             </TableRow>
         </TableLayout>
 
         <Button
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Save"
             android:id="@+id/btn_save"
+            android:layout_width="140dp"
             android:layout_gravity="center_horizontal" />
 
     </LinearLayout>

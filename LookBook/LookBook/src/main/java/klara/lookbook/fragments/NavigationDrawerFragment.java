@@ -1,16 +1,16 @@
 package klara.lookbook.fragments;
 
-import android.support.v7.app.ActionBarActivity;;
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,9 +20,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import klara.lookbook.R;
+
+;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -37,6 +38,11 @@ public class NavigationDrawerFragment extends Fragment {
     public static final int SECTION_HOME = 0;
     public static final int SECTION_ADD_ITEM = 1;
     public static final int SECTION_ADD_SHOP  = 2;
+    public static final int SECTION_VIEW_ITEMS  = 3;
+    public static final int SECTION_VIEW_SHOPS  = 4;
+    public static final int SECTION_LOG_OUT  = 5;
+
+    public static final int SECTION_ITEM_DETAIL  = 100;
 
     private NavigationDrawerCallbacks mCallbacks;
 
@@ -98,6 +104,8 @@ public class NavigationDrawerFragment extends Fragment {
                         getString(R.string.home_frag_title),
                         getString(R.string.add_item_frag_title),
                         getString(R.string.add_shop_frag_title),
+                        getString(R.string.view_item_frag_title),
+                        getString(R.string.view_shop_frag_title),
                         getString(R.string.title_section_logout)
                 }));
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);

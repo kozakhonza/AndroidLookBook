@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="add_item_frag_title">Add item</string>
-    <string name="add_item_frag_hint_item">Pullower…</string>
-    <string name="add_item_frag_hint_addresse">Shop name, City…</string>
-    <string name="add_item_frag_hint_price">Price</string>
+    <string name="add_item_frag_hint_item">Pullower… - required</string>
+    <string name="add_item_frag_hint_addresse">Shop name, City… - required</string>
+    <string name="add_item_frag_hint_price">Price - required</string>
     <string name="add_item_frag_hint_description">Description</string>
     <string name="add_item_frag_gps_not_avaible">Location service not avaible</string>
-    <string name="add_item_frag_gps_not_avaible_text">Chcete povolit v nastaveni</string>
+    <string name="add_item_frag_item_hasbeen_saved">Item has been successfully saved</string>
+    <string name="add_item_frag_gps_not_avaible_text">Aby aplikace fungovala korektně
+        je zaptřebí, aby měla přístup k vaši poloze. Prosím povolte určování polohy v nastavení. Chcete přejít do tohoto nastavní hned?</string>
 </resources>

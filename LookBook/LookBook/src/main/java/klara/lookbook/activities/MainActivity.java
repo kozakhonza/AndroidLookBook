@@ -1,26 +1,23 @@
 package klara.lookbook.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import klara.lookbook.R;
 import klara.lookbook.SynchronizeService;
 import klara.lookbook.fragments.AddItemFragment;
 import klara.lookbook.fragments.AddShopFragment;
 import klara.lookbook.fragments.HomeFragment;
+import klara.lookbook.fragments.ItemDetailFragment;
 import klara.lookbook.fragments.NavigationDrawerFragment;
 import klara.lookbook.fragments.ViewItemFragment;
+import klara.lookbook.fragments.ViewShopFragment;
 import klara.lookbook.utils.AppPref;
 
 public class MainActivity extends BaseActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -72,14 +69,38 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
                 fragment = AddShopFragment.newInstance(position);
                 backStackName = "AddShopFragment";
                 break;
-            case 3:
-                fragment = AddShopFragment.newInstance(position);
-                backStackName = "AddShopFragment";
+            case NavigationDrawerFragment.SECTION_VIEW_ITEMS:
+                fragment = ViewItemFragment.newInstance(position);
+                backStackName = "ViewItemFragment";
                 break;
-            case 4:
+            case NavigationDrawerFragment.SECTION_VIEW_SHOPS:
+                fragment = ViewShopFragment.newInstance(position);
+                backStackName = "ViewShopFragment";
+                break;
+            case NavigationDrawerFragment.SECTION_LOG_OUT:
                 AppPref.put(this, AppPref.KEY_PASSWORD, "");
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
+                break;
+        }
+
+        if(fragment != null) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, fragment, fragment.getClass().getName())
+                    .addToBackStack(backStackName)
+                    .commit();
+        }
+    }
+
+    public void onCustomSectionSelected(int position, Object params) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment = null;
+        String backStackName = "default";
+        switch(position) {
+
+            case NavigationDrawerFragment.SECTION_ITEM_DETAIL:
+                fragment = ItemDetailFragment.newInstance(position, (Integer)params);
+                backStackName = "ItemDetailFragment";
                 break;
         }
 
@@ -101,6 +122,15 @@ public class MainActivity extends BaseActivity implements NavigationDrawerFragme
                 break;
             case NavigationDrawerFragment.SECTION_ADD_SHOP:
                 mTitle = getString(R.string.add_shop_frag_title);
+                break;
+            case NavigationDrawerFragment.SECTION_VIEW_ITEMS:
+                mTitle = getString(R.string.view_item_frag_title);
+                break;
+            case NavigationDrawerFragment.SECTION_VIEW_SHOPS:
+                mTitle = getString(R.string.view_shop_frag_title);
+                break;
+            case NavigationDrawerFragment.SECTION_ITEM_DETAIL:
+                mTitle = getString(R.string.item_detail_frag_title);
                 break;
         }
     }

@@ -1,15 +1,16 @@
 package klara.lookbook.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -26,11 +27,10 @@ import com.google.android.gms.location.LocationClient;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import klara.lookbook.R;
 import klara.lookbook.activities.MainActivity;
+import klara.lookbook.dialogs.ProgressDialog;
 import klara.lookbook.model.BaseDbObject;
 import klara.lookbook.model.Shop;
 import klara.lookbook.utils.ImageUtil;
@@ -126,7 +126,8 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
     @Override
     public void onStart() {
         super.onStart();
-        if(googleServicesConnected()) {
+        if(isLocationServiceEnabled() && googleServicesConnected() && location == null) {
+            ProgressDialog.newInstance().show(getFragmentManager(), "ProgressDialog");
             mLocationClient.connect();
         }
     }
@@ -139,6 +140,24 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
         }
     }
 
+    private boolean isLocationServiceEnabled() {
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        if( !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) &&
+                !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.add_item_frag_gps_not_avaible);
+            builder.setMessage(R.string.add_item_frag_gps_not_avaible_text);
+            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    AddShopFragment.this.startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                }
+            });
+            builder.setNegativeButton(R.string.no, null);
+            builder.create().show();
+            return false;
+        }
+        return true;
+    }
     public void takeThePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -148,7 +167,7 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
                 photoFile = ImageUtil.createImageFile();
                 mCurrentPhotoPath = photoFile.getAbsolutePath();
             } catch (IOException ex) {
-                ex.printStackTrace(); // todo pokud neexistuje dana slozka tak ji vytvorit -  mozna jiz vyreseno zkontrolovat
+                ex.printStackTrace();
             }
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
@@ -164,7 +183,7 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
             return true;
         } else {
             Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                    resultCode, // todo tady tim si nejsem jisty
+                    resultCode,
                     getActivity(),
                     CONNECTION_FAILURE_RESOLUTION_REQUEST);
             if (errorDialog != null) {
@@ -173,8 +192,6 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
                 errorFragment.setDialog(errorDialog);
                 errorFragment.show(getFragmentManager(),
                         "Location Updates");
-            }else {
-                // todo ukazat dialog ze google play service neni dostupna
             }
         }
         return false;
@@ -213,6 +230,7 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
 
             shop.setImageUri(mCurrentPhotoPath);
             shop.save();
+            Toast.makeText(getActivity(), getString(R.string.add_shop_frag_shop_hasbeen_saved), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -221,19 +239,19 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
 
         if(this.title.getText().toString().isEmpty())
         {
-            this.title.setError("Nazev musi byt vyplnen");
+            this.title.setError(getString(R.string.error_field_required));
             isValid = false;
         }
 
         if(this.city.getText().toString().isEmpty())
         {
-            this.city.setError("Mesto musi byt vyplneno");
+            this.city.setError(getString(R.string.error_field_required));
             isValid = false;
         }
 
         if(this.mCurrentPhotoPath == null || this.mCurrentPhotoPath.isEmpty())
         {
-            Toast.makeText(getActivity(), "Nebyla porizena fotka", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getString(R.string.error_photo_required), Toast.LENGTH_LONG).show();
             isValid = false;
         }
 
@@ -251,9 +269,10 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
         location = mLocationClient.getLastLocation();
         if (location == null && reconnectCounter < 3) {
             reconnectLocation();
-        }else {
+        }else if(location == null){
             //todo - ukazat hlasku ze se nepovedlo zjiskat soucasnou polohu ...
         }
+        myDismissDialog("ProgressDialog");
 
     }
 
@@ -272,8 +291,7 @@ public class AddShopFragment extends BaseFragment implements GooglePlayServicesC
             } catch (IntentSender.SendIntentException e) {
                 e.printStackTrace();
             }
-        } else {
-//            showErrorDialog(connectionResult.getErrorCode()); todo
+            myDismissDialog("ProgressDialog");
         }
 
     }

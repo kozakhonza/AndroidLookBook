@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -20,7 +20,6 @@ import klara.lookbook.BaseAsyncTask;
 import klara.lookbook.R;
 import klara.lookbook.activities.MainActivity;
 import klara.lookbook.adapters.HomeItemViewAdapter;
-import klara.lookbook.adapters.ItemViewAdapter;
 import klara.lookbook.dialogs.BaseDialog;
 import klara.lookbook.model.Item;
 import klara.lookbook.model.ItemHome;
@@ -49,6 +48,15 @@ public class HomeFragment extends BaseFragment {
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         GridView grid = (GridView) rootView.findViewById(R.id.grid);
         grid.setAdapter(mAdapter);
+
+        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int sectionNumber, long l) {
+                ((MainActivity) getActivity())
+                        .onCustomSectionSelected(NavigationDrawerFragment.SECTION_ITEM_DETAIL,
+                                ((ItemHome)mAdapter.getItem(sectionNumber)).getId());
+            }
+        });
         return rootView;
     }
 
@@ -63,11 +71,15 @@ public class HomeFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         if(mAdapter.getCount() == 0) {
-            GetItemsTask task = new GetItemsTask();
-            ContentValues values = new ContentValues();
-            task.init(this, UriUtil.URL_VIEW_LEADERS_ITEMS, values, true);
-            task.execute();
+            downloadData();
         }
+    }
+
+    private void downloadData() {
+        GetItemsTask task = new GetItemsTask();
+        ContentValues values = new ContentValues();
+        task.init(this, UriUtil.URL_VIEW_LEADERS_ITEMS, values, true);
+        task.execute();
     }
 
     public void setEmptyText(CharSequence emptyText) {
@@ -93,6 +105,7 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTryAgainOk(BaseDialog dialog) {
             dialog.dismiss();
+            downloadData();
         }
 
         @Override

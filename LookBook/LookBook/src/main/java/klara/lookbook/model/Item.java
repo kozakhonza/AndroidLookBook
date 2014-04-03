@@ -2,17 +2,10 @@ package klara.lookbook.model;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.provider.BaseColumns;
-import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import klara.lookbook.utils.ImageUtil;
 
@@ -125,6 +118,9 @@ public class Item extends BaseDbObject {
         }
     }
 
+    public int getId() {
+        return this.id;
+    }
     public String getTitle() {
         return title;
     }

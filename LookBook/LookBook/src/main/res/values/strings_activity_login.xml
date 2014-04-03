@@ -20,4 +20,6 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_password_not_match">Password do not match</string>
     <string name="error_field_required">This field is required</string>
+    <string name="error_photo_required">Photo is required</string>
+    <string name="error_shop_doesnt_exists">Shop does not exists</string>
 </resources>

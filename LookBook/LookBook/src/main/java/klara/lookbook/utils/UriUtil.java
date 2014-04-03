@@ -36,12 +36,15 @@ public class UriUtil {
     public static final String URL_LOGIN = "/users/loginMb";
     public static final String URL_REGISTER = "/users/addMb";
     public static final String URL_GET_NEAREST_SHOP = "/shops/nearestMb";
-    public static final String URL_SAVE_ITEM = "/items/saveMb";
     public static final String URL_SAVE_SHOP = "/shops/saveMb";
+    public static final String URL_VIEW_SHOPS = "/shops/viewMb";
+    public static final String URL_SAVE_ITEM = "/items/saveMb";
     public static final String URL_VIEW_ITEMS = "/items/viewMb";
-    public static final String URL_VIEW_SHOPS = "/items/viewMb";
+    public static final String URL_VIEW_ITEM_DETAILS = "/items/viewDetailsMb";
     public static final String URL_VIEW_LEADERS_ITEMS = "/users/viewLeadersItemsMb";
-    public static final String URL_FAVORITE_ADD = "/favoritLists/addMb";
+    public static final String URL_VIEW_MESSAGES = "/messages/viewMb";
+    public static final String URL_ADD_MESSAGE = "/messages/addMb";
+    public static final String URL_FAVORITE_TOGGLE = "/favoritLists/toggleMb";
 
     public static final String PARAM_IS_MOBILE_REQUEST = "an_is_mobile";
     public static final String PARAM_EMAIL = "username";
@@ -51,6 +54,10 @@ public class UriUtil {
     public static final String PARAM_LNG = "lng";
     public static final String PARAM_ACCURACY = "accuracy";
     public static final String PARAM_ITEM_ID = "item_id";
+    public static final String PARAM_LAST_MESSAGE_ID = "last_message_id";
+    public static final String PARAM_MESSAGE_TEXT = "text";
+    public static final String PARAM_ID = "id";
+
 
     public static final String VALUE_OK = "1";
     public static final String VALUE_FAIL = "0";
@@ -77,6 +84,7 @@ public class UriUtil {
             try {
                 if(jsonObj.getString("succes").equals(VALUE_OK)) {
                     AppPref.put(context, AppPref.KEY_USER_ID, jsonObj.getInt("userId"));
+                    AppPref.put(context, AppPref.KEY_USER_NICK, jsonObj.getString("userNick"));
                     return true;
                 }else {
                     return false;
